@@ -1,0 +1,47 @@
+Package: dcm.m2
+Type: Package
+Title: Calculating the M2 Model Fit Statistic for DCMs
+Version: 1.0.0
+Authors@R:
+    c(person(given = "Jeffrey",
+             family = "Hoover",
+             role = c("aut", "cre", "cph"),
+             email = "jeffrey.c.hoover@gmail.com",
+             comment = c(ORCID = "0000-0002-0276-0308")),
+      person(given = "W. Jake",
+             family = "Thompson",
+             role = c("aut"),
+             email = "wjakethompson@gmail.com",
+             comment = c(ORCID = "0000-0001-7339-0300")))
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: GPL (>= 2)
+Depends:
+    R (>= 3.5.0)
+Imports:
+    dplyr (>= 0.8.4),
+    GDINA (>= 2.8.7),
+    glue (>= 1.4.2),
+    magrittr (>= 1.5),
+    methods (>= 4.1.0),
+    modelr (>= 0.1.8),
+    purrr (>= 0.3.3),
+    Rcpp (>= 1.0.2.4),
+    rlang (>= 0.4.11),
+    stringr (>= 1.4.0),
+    tibble (>= 2.1.3),
+    tidyr (>= 1.1.4),
+    truncnorm (>= 1.0-8),
+    vctrs (>= 0.3.8)
+Suggests:
+    roxygen2,
+    testthat (>= 2.1.0)
+LinkingTo: 
+    Rcpp (>= 1.0.2.4),
+    RcppArmadillo (>= 0.9.800.1.0)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Language: en-US
+NeedsCompilation: yes
