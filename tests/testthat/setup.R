@@ -23,3 +23,6 @@ fit_dat <- data$data %>%
   dplyr::select(-"resp_id") %>%
   as.matrix() %>%
   unname()
+
+data_att1 <- generate_data(sample_size = 1000, test_length = 2, prevalence = .5,
+                           discrimination = 1, association = 0, attributes = 1)

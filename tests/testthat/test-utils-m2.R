@@ -1,28 +1,18 @@
 test_that("test fisher_partial_p_alpha_l", {
-  data <- generate_data(sample_size = 1000, test_length = 2, prevalence = .5,
-                        discrimination = 1, association = 0, attributes = 1)
-
-  q_matrix <- data$q_matrix
-
   base_rates <- matrix(c(.4, .6), nrow = 1)
-  colnames(base_rates) <- att_profile(ncol(q_matrix))
+  colnames(base_rates) <- att_profile(ncol(data_att1$q_matrix))
 
   output <- fisher_partial_p_alpha_l(base_rates)
 
-  testthat::expect_equivalent(typeof(output), "double")
-  testthat::expect_equivalent(length(output), 1)
-  testthat::expect_gte(output, 0)
-  testthat::expect_lte(output, 1)
+  expect_equal(typeof(output), "double")
+  expect_equal(length(output), 1)
+  expect_gte(output, 0)
+  expect_lte(output, 1)
 })
 
 test_that("test calc_bivariate_prob", {
-  data <- generate_data(sample_size = 1000, test_length = 2, prevalence = .5,
-                        discrimination = 1, association = 0, attributes = 1)
-
-  qmatrix <- data$q_matrix
-
   base_rates <- matrix(c(.4, .6), nrow = 1)
-  colnames(base_rates) <- att_profile(ncol(qmatrix))
+  colnames(base_rates) <- att_profile(ncol(data_att1$q_matrix))
 
   num_items <- 2
 
@@ -33,18 +23,13 @@ test_that("test calc_bivariate_prob", {
   bi <- matrix(NA, num_items, num_items)
   output <- calc_bivariate_prob(num_items, bi, pi_matrix, base_rates)
 
-  testthat::expect_equivalent(length(output), num_items * num_items)
-  testthat::expect_equivalent(typeof(output), "double")
+  expect_equal(length(output), num_items * num_items)
+  expect_equal(typeof(output), "double")
 })
 
 test_that("test calc_univariate_prob", {
-  data <- generate_data(sample_size = 1000, test_length = 2, prevalence = .5,
-                        discrimination = 1, association = 0, attributes = 1)
-
-  qmatrix <- data$q_matrix
-
   base_rates <- matrix(c(.4, .6), nrow = 1)
-  colnames(base_rates) <- att_profile(ncol(qmatrix))
+  colnames(base_rates) <- att_profile(ncol(data_att1$q_matrix))
 
   num_items <- 2
 
@@ -55,8 +40,8 @@ test_that("test calc_univariate_prob", {
 
   output <- calc_univariate_prob(num_items, uni, pi_matrix, base_rates)
 
-  testthat::expect_equivalent(length(output), num_items)
-  testthat::expect_equivalent(typeof(output), "double")
+  expect_equal(length(output), num_items)
+  expect_equal(typeof(output), "double")
 })
 
 test_that("test rmsea_calc", {
@@ -67,8 +52,8 @@ test_that("test rmsea_calc", {
 
   rmsea <- rmsea_calc(x2, df, n)
 
-  testthat::expect_equivalent(length(rmsea), 1)
-  testthat::expect_equivalent(rmsea, 0.052, tol = .001)
+  expect_equal(length(rmsea), 1)
+  expect_equal(rmsea, 0.052, tolerance = .01)
 })
 
 test_that("test rmsea_ci", {
@@ -81,15 +66,12 @@ test_that("test rmsea_ci", {
 
   ci <- rmsea_ci(x2, df, n, ci_lower, ci_upper)
 
-  testthat::expect_equivalent(length(ci), 2)
-  testthat::expect_equivalent(ci[1], 0.036, tol = .001)
-  testthat::expect_equivalent(ci[2], 0.068, tol = .001)
+  expect_equal(length(ci), 2)
+  expect_equal(ci[1], 0.036, tolerance = .01)
+  expect_equal(ci[2], 0.068, tolerance = .01)
 })
 
 test_that("test skills", {
-  data <- generate_data(sample_size = 1000, test_length = 3, prevalence = .5,
-                        discrimination = 1, association = 0, attributes = 2)
-
   qmatrix <- tibble::tibble(att_1 = c(1, 0, 1, 0, 1, 0),
                             att_2 = c(0, 1, 0, 1, 0, 1))
 
@@ -112,9 +94,9 @@ test_that("test skills", {
 
   expected_output <- unname(expected_output)
 
-  testthat::expect_equivalent(ncol(skills_output), l)
-  testthat::expect_equivalent(nrow(skills_output), nrow(qmatrix))
-  testthat::expect_equivalent(skills_output, expected_output)
+  expect_equal(ncol(skills_output), l)
+  expect_equal(nrow(skills_output), nrow(qmatrix))
+  expect_equal(skills_output, expected_output)
 })
 
 test_that("test calc_patt", {
@@ -129,16 +111,16 @@ test_that("test calc_patt", {
 
   output <- calc_patt(q_matrix, l, skills_missing)
 
-  testthat::expect_equivalent(typeof(output), "integer")
-  testthat::expect_equivalent(ncol(output), l)
-  testthat::expect_equivalent(nrow(output), nrow(q_matrix))
-  testthat::expect_equivalent(output,
-                         tibble::tibble(`00` = rep(1, nrow(q_matrix)),
-                                        `10` = c(2, 1, 2, 1),
-                                        `01` = c(1, 2, 1, 2),
-                                        `11` = rep(2, nrow(q_matrix))) %>%
-                           as.matrix() %>%
-                           unname())
+  expect_equal(typeof(output), "integer")
+  expect_equal(ncol(output), l)
+  expect_equal(nrow(output), nrow(q_matrix))
+  expect_equal(output,
+               tibble::tibble(`00` = rep(1, nrow(q_matrix)),
+                              `10` = c(2, 1, 2, 1),
+                              `01` = c(1, 2, 1, 2),
+                              `11` = rep(2, nrow(q_matrix))) %>%
+                 as.matrix() %>%
+                 unname())
 })
 
 test_that("test item_param_profiles", {
@@ -152,22 +134,22 @@ test_that("test item_param_profiles", {
   output3 <- item_param_profiles(natt3)
   output4 <- item_param_profiles(natt4)
 
-  testthat::expect_equivalent(output1, c("Intercept", "MEF1"))
-  testthat::expect_equivalent(output2, c("Intercept", "MEF1", "MEF2", "Int12"))
-  testthat::expect_equivalent(output3, c("Intercept", "MEF1", "MEF2", "MEF3",
-                                    "Int12", "Int13", "Int23", "Int123"))
-  testthat::expect_equivalent(output4, c("Intercept", "MEF1", "MEF2", "MEF3", "MEF4",
-                                    "Int12", "Int13", "Int23", "Int14", "Int24",
-                                    "Int34", "Int123", "Int124", "Int134",
-                                    "Int234", "Int1234"))
+  expect_equal(output1, c("Intercept", "MEF1"))
+  expect_equal(output2, c("Intercept", "MEF1", "MEF2", "Int12"))
+  expect_equal(output3, c("Intercept", "MEF1", "MEF2", "MEF3",
+                          "Int12", "Int13", "Int23", "Int123"))
+  expect_equal(output4, c("Intercept", "MEF1", "MEF2", "MEF3", "MEF4",
+                          "Int12", "Int13", "Int23", "Int14", "Int24",
+                          "Int34", "Int123", "Int124", "Int134",
+                          "Int234", "Int1234"))
 })
 
 test_that("test att_profile", {
   natt <- 3
 
-  testthat::expect_equivalent(length(att_profile(natt)), 2^natt)
-  testthat::expect_equivalent(att_profile(natt), c("000", "100", "010", "001",
-                                              "110", "101", "011", "111"))
+  expect_equal(length(att_profile(natt)), 2^natt)
+  expect_equal(att_profile(natt), c("000", "100", "010", "001",
+                                    "110", "101", "011", "111"))
 })
 
 test_that("test calc_design_matrix - LCDM", {
@@ -178,19 +160,19 @@ test_that("test calc_design_matrix - LCDM", {
 
   output <- calc_design_matrix(num_item_params, qmatrix, model_type)
 
-  testthat::expect_equivalent(length(output), nrow(qmatrix))
-  testthat::expect_equivalent(output[[1]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[2]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[3]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[4]],
-                         matrix(c(1, 1, 1, 1,
-                                  0, 1, 0, 1,
-                                  0, 0, 1, 1,
-                                  0, 0, 0, 1),
-                                nrow = 4, ncol = 4, byrow = F))
+  expect_equal(length(output), nrow(qmatrix))
+  expect_equal(output[[1]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[2]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[3]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[4]],
+               matrix(c(1, 1, 1, 1,
+                        0, 1, 0, 1,
+                        0, 0, 1, 1,
+                        0, 0, 0, 1),
+                      nrow = 4, ncol = 4, byrow = F))
 })
 
 test_that("test calc_design_matrix - DINO", {
@@ -201,17 +183,17 @@ test_that("test calc_design_matrix - DINO", {
 
   output <- calc_design_matrix(num_item_params, qmatrix, model_type)
 
-  testthat::expect_equivalent(length(output), nrow(qmatrix))
-  testthat::expect_equivalent(output[[1]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[2]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[3]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[4]],
-                         matrix(c(1, 1, 1, 1,
-                                  0, 1, 1, 1),
-                                nrow = 4, ncol = 2, byrow = F))
+  expect_equal(length(output), nrow(qmatrix))
+  expect_equal(output[[1]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[2]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[3]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[4]],
+               matrix(c(1, 1, 1, 1,
+                        0, 1, 1, 1),
+                      nrow = 4, ncol = 2, byrow = F))
 })
 
 test_that("test calc_design_matrix - DINA", {
@@ -222,17 +204,17 @@ test_that("test calc_design_matrix - DINA", {
 
   output <- calc_design_matrix(num_item_params, qmatrix, model_type)
 
-  testthat::expect_equivalent(length(output), nrow(qmatrix))
-  testthat::expect_equivalent(output[[1]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[2]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[3]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[4]],
-                         matrix(c(1, 1, 1, 1,
-                                  0, 0, 0, 1),
-                                nrow = 4, ncol = 2, byrow = F))
+  expect_equal(length(output), nrow(qmatrix))
+  expect_equal(output[[1]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[2]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[3]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[4]],
+               matrix(c(1, 1, 1, 1,
+                        0, 0, 0, 1),
+                      nrow = 4, ncol = 2, byrow = F))
 })
 
 test_that("test calc_design_matrix - ACDM", {
@@ -243,18 +225,18 @@ test_that("test calc_design_matrix - ACDM", {
 
   output <- calc_design_matrix(num_item_params, qmatrix, model_type)
 
-  testthat::expect_equivalent(length(output), nrow(qmatrix))
-  testthat::expect_equivalent(output[[1]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[2]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[3]],
-                         matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[4]],
-                         matrix(c(1, 1, 1, 1,
-                                  0, 1, 0, 1,
-                                  0, 0, 1, 1),
-                                nrow = 4, ncol = 3, byrow = F))
+  expect_equal(length(output), nrow(qmatrix))
+  expect_equal(output[[1]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[2]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[3]],
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[4]],
+               matrix(c(1, 1, 1, 1,
+                        0, 1, 0, 1,
+                        0, 0, 1, 1),
+                      nrow = 4, ncol = 3, byrow = F))
 })
 
 test_that("test calc_design_matrix - BUGDINO", {
@@ -265,94 +247,94 @@ test_that("test calc_design_matrix - BUGDINO", {
 
   output <- calc_design_matrix(num_item_params, qmatrix, model_type)
 
-  testthat::expect_equivalent(length(output), nrow(qmatrix))
-  testthat::expect_equivalent(output[[1]],
-                         matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[2]],
-                         matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[3]],
-                         matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = F))
-  testthat::expect_equivalent(output[[4]],
-                         matrix(c(1, 1, 1, 1,
-                                  1, 0, 0, 0),
-                                nrow = 4, ncol = 2, byrow = F))
+  expect_equal(length(output), nrow(qmatrix))
+  expect_equal(output[[1]],
+               matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[2]],
+               matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[3]],
+               matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = F))
+  expect_equal(output[[4]],
+               matrix(c(1, 1, 1, 1,
+                        1, 0, 0, 0),
+                      nrow = 4, ncol = 2, byrow = F))
 })
 
 test_that("test possible_parameters - LCDM", {
   output <- possible_parameters(2, "LCDM")
 
-  testthat::expect_equivalent(output,
-                         matrix(c(0, 0,
-                                  1, 0,
-                                  0, 1,
-                                  1, 1),
-                                nrow = 4, ncol = 2, byrow = T))
+  expect_equal(output,
+               matrix(c(0, 0,
+                        1, 0,
+                        0, 1,
+                        1, 1),
+                      nrow = 4, ncol = 2, byrow = T))
 })
 
 test_that("test possible_parameters - ACDM", {
   output <- possible_parameters(2, "ACDM")
 
-  testthat::expect_equivalent(output,
-                         matrix(c(0, 0,
-                                  1, 0,
-                                  0, 1,
-                                  1, 1),
-                                nrow = 4, ncol = 2, byrow = T))
+  expect_equal(output,
+               matrix(c(0, 0,
+                        1, 0,
+                        0, 1,
+                        1, 1),
+                      nrow = 4, ncol = 2, byrow = T))
 })
 
 test_that("test possible_parameters - LLM", {
   output <- possible_parameters(2, "LLM")
 
-  testthat::expect_equivalent(output,
-                         matrix(c(0, 0,
-                                  1, 0,
-                                  0, 1,
-                                  1, 1),
-                                nrow = 4, ncol = 2, byrow = T))
+  expect_equal(output,
+               matrix(c(0, 0,
+                        1, 0,
+                        0, 1,
+                        1, 1),
+                      nrow = 4, ncol = 2, byrow = T))
 })
 
 test_that("test possible_parameters - RRUM", {
   output <- possible_parameters(2, "RRUM")
 
-  testthat::expect_equivalent(output,
-                         matrix(c(0, 0,
-                                  1, 0,
-                                  0, 1,
-                                  1, 1),
-                                nrow = 4, ncol = 2, byrow = T))
+  expect_equal(output,
+               matrix(c(0, 0,
+                        1, 0,
+                        0, 1,
+                        1, 1),
+                      nrow = 4, ncol = 2, byrow = T))
 })
 
 test_that("test possible_parameters - DINO", {
   output <- possible_parameters(2, "DINO")
 
-  testthat::expect_equivalent(output,
-                         matrix(c(1, 0,
-                                  1, 1,
-                                  1, 1,
-                                  1, 1),
-                                nrow = 4, ncol = 2, byrow = T))
+  expect_equal(output,
+               matrix(c(1, 0,
+                        1, 1,
+                        1, 1,
+                        1, 1),
+                      nrow = 4, ncol = 2, byrow = T))
 })
 
 test_that("test possible_parameters - DINA", {
   output <- possible_parameters(2, "DINA")
 
-  testthat::expect_equivalent(output,
-                         matrix(c(1, 0,
-                                  1, 0,
-                                  1, 0,
-                                  1, 1),
-                                nrow = 4, ncol = 2, byrow = T))
+  expect_equal(output,
+               matrix(c(1, 0,
+                        1, 0,
+                        1, 0,
+                        1, 1),
+                      nrow = 4, ncol = 2, byrow = T))
 })
 
 test_that("test possible_parameters - BUGDINO", {
   output <- possible_parameters(2, "BUGDINO")
 
-  testthat::expect_equivalent(output,
-                         matrix(c(1, 1,
-                                  1, 0,
-                                  1, 0,
-                                  1, 0),
-                                nrow = 4, ncol = 2, byrow = T))
+  expect_equal(output,
+               matrix(c(1, 1,
+                        1, 0,
+                        1, 0,
+                        1, 0),
+                      nrow = 4, ncol = 2, byrow = T))
 })
 
 test_that("test calc_emp_marginal_prob", {
@@ -365,8 +347,8 @@ test_that("test calc_emp_marginal_prob", {
 
   output <- calc_emp_marginal_prob(data, 5)
 
-  testthat::expect_equivalent(output,
-                         c(.6, .6, .4))
+  expect_equal(output,
+               c(.6, .6, .4))
 })
 
 test_that("test calc_mod_marginal_prob", {
@@ -387,8 +369,8 @@ test_that("test calc_mod_marginal_prob", {
 
   output <- calc_mod_marginal_prob(5, pi_matrix, base_rates)
 
-  testthat::expect_equivalent(output,
-                         c(uni, bi[lower.tri(bi)]))
+  expect_equal(output,
+               c(uni, bi[lower.tri(bi)]))
 })
 
 test_that("test calc_covariance_matrix", {
@@ -405,11 +387,11 @@ test_that("test calc_covariance_matrix", {
 
   output <- calc_covariance_matrix(5, pi_matrix, base_rates)
 
-  testthat::expect_equivalent(output,
-                         cbind(rbind(partitioned_cov_mat$Xi11,
-                                     partitioned_cov_mat$Xi21),
-                               rbind(t(partitioned_cov_mat$Xi21),
-                                     partitioned_cov_mat$Xi22)))
+  expect_equal(output,
+               cbind(rbind(partitioned_cov_mat$Xi11,
+                           partitioned_cov_mat$Xi21),
+                     rbind(t(partitioned_cov_mat$Xi21),
+                           partitioned_cov_mat$Xi22)))
 })
 
 test_that("test calc_jacobian_matrix", {
@@ -433,11 +415,11 @@ test_that("test calc_jacobian_matrix", {
   output <- calc_jacobian_matrix(2, num_item_params, pi_matrix,
                                  design_matrix, patt, base_rates, 2, 1)
 
-  testthat::expect_equivalent(output,
-                         matrix(c(.185, .08, 0, 0, .075,
-                                  0, 0, .185, .105, .05,
-                                  .077, .056, .108, .084, .015),
-                                nrow = 3, ncol = 5, byrow = T))
+  expect_equal(output,
+               matrix(c(.185, .08, 0, 0, .075,
+                        0, 0, .185, .105, .05,
+                        .077, .056, .108, .084, .015),
+                      nrow = 3, ncol = 5, byrow = T))
 })
 
 test_that("test calc_c_r", {
@@ -459,8 +441,8 @@ test_that("test calc_c_r", {
   output <- calc_c_r(num_items, num_item_params, pi_matrix, base_rates, l,
                      num_attr, qmatrix, model_type)
 
-  testthat::expect_equivalent(typeof(output), "double")
-  testthat::expect_equivalent(class(output), c("matrix", "array"))
-  testthat::expect_equivalent(nrow(output), ncol(output))
-  testthat::expect_equivalent(nrow(output), 15)
+  expect_equal(typeof(output), "double")
+  expect_equal(class(output), c("matrix", "array"))
+  expect_equal(nrow(output), ncol(output))
+  expect_equal(nrow(output), 15)
 })
