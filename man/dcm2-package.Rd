@@ -8,6 +8,14 @@
 \description{
 More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/atlas-aai/dcm2}
+  \item Report bugs at \url{https://github.com/atlas-aai/dcm2/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Jeffrey Hoover \email{jeffrey.c.hoover@gmail.com} (\href{https://orcid.org/0000-0002-0276-0308}{ORCID}) [copyright holder]
 
