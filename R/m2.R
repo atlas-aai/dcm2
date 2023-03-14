@@ -49,11 +49,11 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, num_item_params,
     exp_num_item_params <- qmatrix %>%
       modelr::model_matrix(stats::as.formula(paste0("~ .^", ncol(.)))) %>%
       dplyr::mutate(total_params = rowSums(.)) %>%
-      dplyr::pull(.data$total_params)
+      dplyr::pull("total_params")
   } else if(model_type %in% c("ACDM", "LLM", "RRUM")) {
     exp_num_item_params <- qmatrix %>%
       dplyr::mutate(total_params = rowSums(.) + 1) %>%
-      dplyr::pull(.data$total_params)
+      dplyr::pull("total_params")
   }
 
   check_num_item_params(num_item_params, qmatrix, exp_num_item_params)

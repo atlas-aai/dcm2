@@ -11,12 +11,12 @@
 profile_create <- function(theta, bk0, bk1) {
   purrr::map2_int(bk0, bk1,
                    function(x, y, theta) {
-                     purrr::rbernoulli(n = 1, stats::pnorm(x * (theta - y)))
+                     stats::runif(1) > (1 - stats::pnorm(x * (theta - y)))
                    },
                    theta = theta) %>%
     rlang::set_names(glue::glue("att_{1:length(.)}")) %>%
     tibble::enframe() %>%
-    tidyr::pivot_wider(names_from = .data$name, values_from = .data$value)
+    tidyr::pivot_wider(names_from = "name", values_from = "value")
 }
 
 
@@ -69,8 +69,8 @@ generate_data <- function(sample_size, test_length, prevalence,
     rlang::set_names(glue::glue("att_{seq_len(attributes)}")) %>%
     expand.grid() %>%
     dplyr::mutate(total = rowSums(.)) %>%
-    dplyr::select(.data$total, dplyr::everything()) %>%
-    dplyr::arrange_at(dplyr::vars(.data$total,
+    dplyr::select("total", dplyr::everything()) %>%
+    dplyr::arrange_at(dplyr::vars("total",
                                   dplyr::desc(-dplyr::one_of("total")))) %>%
     dplyr::filter(dplyr::between(.data$total, 1, 2)) %>%
     dplyr::mutate(prob = dplyr::case_when(.data$total == 1 ~ 0.500,
@@ -106,7 +106,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       dplyr::select_if(~ !all_zero(.x)) %>%
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
-      dplyr::rename(intercept = .data$.Intercept.) %>%
+      dplyr::rename(intercept = ".Intercept.") %>%
       dplyr::rename_all(repair_names)
   } else {
     needed_params <-
@@ -116,25 +116,25 @@ generate_data <- function(sample_size, test_length, prevalence,
       dplyr::select_if(~ !all_zero(.x)) %>%
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
-      dplyr::rename(intercept = .data$.Intercept.) %>%
+      dplyr::rename(intercept = ".Intercept.") %>%
       dplyr::rename_all(repair_names)
   }
   param_names <- colnames(needed_params)
   needed_params <- needed_params %>%
-    tidyr::pivot_longer(cols = -.data$item_id, names_to = "param",
+    tidyr::pivot_longer(cols = -"item_id", names_to = "param",
                         values_to = "valid") %>%
     dplyr::filter(.data$valid == 1)
 
   intercepts <- needed_params %>%
     dplyr::filter(.data$param == "intercept") %>%
     dplyr::mutate(prob = stats::runif(n = dplyr::n(), min = 0.1, max = 0.35),
-                  value = logit(.data$prob)) %>%
-    dplyr::select(.data$item_id, intercept = .data$value)
+                  value = vapply(.data$prob, logit, double(1))) %>%
+    dplyr::select("item_id", intercept = "value")
 
   effects <- needed_params %>%
     dplyr::filter(.data$param != "intercept") %>%
-    tidyr::nest(item_params = -.data$item_id) %>%
-    dplyr::mutate(params = purrr::map(item_params,
+    tidyr::nest(item_params = -"item_id") %>%
+    dplyr::mutate(params = purrr::map(.data$item_params,
                         function(x, dis, att) {
                           if (nrow(x) == 1) {
                             effect <- x %>%
@@ -160,18 +160,17 @@ generate_data <- function(sample_size, test_length, prevalence,
                                 ),
                                 value = dplyr::coalesce(.data$mef, .data$int)
                               ) %>%
-                              dplyr::select(.data$param, .data$valid,
-                                            .data$value)
+                              dplyr::select("param", "valid", "value")
                           }
                           ret_frame <- effect %>%
-                            dplyr::select(.data$param, .data$value) %>%
-                            tidyr::pivot_wider(names_from = .data$param,
-                                               values_from = .data$value)
+                            dplyr::select("param", "value") %>%
+                            tidyr::pivot_wider(names_from = "param",
+                                               values_from = "value")
                           return(ret_frame)
                         },
                         dis = discrimination, att = attributes)) %>%
-    dplyr::select(.data$item_id, .data$params) %>%
-    tidyr::unnest(.data$params)
+    dplyr::select("item_id", "params") %>%
+    tidyr::unnest("params")
 
   item_params <- dplyr::full_join(intercepts, effects, by = "item_id") %>%
     dplyr::select({{param_names}})
@@ -179,24 +178,23 @@ generate_data <- function(sample_size, test_length, prevalence,
   # generate response data -----
   if(attributes == 1) {
     resp_data <- profiles %>%
-      dplyr::select(-.data$resp_id) %>%
+      dplyr::select(-"resp_id") %>%
       modelr::model_matrix(stats::as.formula(paste0("~ .^", 2))) %>%
       tibble::rowid_to_column(var = "resp_id") %>%
       dplyr::select_if(~ !all_zero(.x)) %>%
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
-      dplyr::rename(intercept = .data$.Intercept.) %>%
+      dplyr::rename(intercept = ".Intercept.") %>%
       dplyr::rename_all(repair_names) %>%
-      tidyr::pivot_longer(cols = -.data$resp_id, names_to = "param",
+      tidyr::pivot_longer(cols = -"resp_id", names_to = "param",
                           values_to = "mastery") %>%
       dplyr::left_join(item_params %>%
-                         tidyr::pivot_longer(cols = -.data$item_id,
+                         tidyr::pivot_longer(cols = -"item_id",
                                              names_to = "param",
                                              values_to = "item_param"),
-                by = "param") %>%
+                by = "param", multiple = "all") %>%
       dplyr::filter(!is.na(.data$item_param)) %>%
-      dplyr::select(.data$resp_id, .data$item_id, .data$param, .data$mastery,
-                    .data$item_param) %>%
+      dplyr::select("resp_id", "item_id", "param", "mastery", "item_param") %>%
       dplyr::arrange(.data$resp_id, .data$item_id) %>%
       dplyr::mutate(param_value = .data$mastery * .data$item_param) %>%
       dplyr::group_by(.data$resp_id, .data$item_id) %>%
@@ -206,27 +204,26 @@ generate_data <- function(sample_size, test_length, prevalence,
                     rand = stats::runif(dplyr::n(), min = 0, max = 1),
                     score = dplyr::case_when(.data$rand <= .data$prob ~ 1L,
                                              TRUE ~ 0L)) %>%
-      dplyr::select(.data$resp_id, .data$item_id, .data$score)
+      dplyr::select("resp_id", "item_id", "score")
   } else {
     resp_data <- profiles %>%
-      dplyr::select(-.data$resp_id) %>%
+      dplyr::select(-"resp_id") %>%
       modelr::model_matrix(stats::as.formula(paste0("~ .^", attributes))) %>%
       tibble::rowid_to_column(var = "resp_id") %>%
       dplyr::select_if(~ !all_zero(.x)) %>%
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
-      dplyr::rename(intercept = .data$.Intercept.) %>%
+      dplyr::rename(intercept = ".Intercept.") %>%
       dplyr::rename_all(repair_names) %>%
-      tidyr::pivot_longer(cols = -.data$resp_id, names_to = "param",
+      tidyr::pivot_longer(cols = -"resp_id", names_to = "param",
                           values_to = "mastery") %>%
       dplyr::left_join(item_params %>%
-                       tidyr::pivot_longer(cols = -.data$item_id,
+                       tidyr::pivot_longer(cols = -"item_id",
                                            names_to = "param",
                                            values_to = "item_param"),
-                       by = "param") %>%
+                       by = "param", multiple = "all") %>%
       dplyr::filter(!is.na(.data$item_param)) %>%
-      dplyr::select(.data$resp_id, .data$item_id, .data$param, .data$mastery,
-                    .data$item_param) %>%
+      dplyr::select("resp_id", "item_id", "param", "mastery", "item_param") %>%
       dplyr::arrange(.data$resp_id, .data$item_id) %>%
       dplyr::mutate(param_value = .data$mastery * .data$item_param) %>%
       dplyr::group_by(.data$resp_id, .data$item_id) %>%
@@ -236,7 +233,7 @@ generate_data <- function(sample_size, test_length, prevalence,
                     rand = stats::runif(dplyr::n(), min = 0, max = 1),
                     score = dplyr::case_when(.data$rand <= .data$prob ~ 1L,
                                              TRUE ~ 0L)) %>%
-      dplyr::select(.data$resp_id, .data$item_id, .data$score)
+      dplyr::select("resp_id", "item_id", "score")
   }
 
   # return generated data -----
@@ -244,34 +241,5 @@ generate_data <- function(sample_size, test_length, prevalence,
                    q_matrix = q_matrix,
                    item_params = item_params,
                    data = resp_data)
-  return(ret_list)
-}
-
-#' Format a GDINA object as an lcdmr object
-#'
-#' @param gdina_mod A GDINA model object containing the estimated model.
-#' @param n The sample size for the estimated model.
-#' @param natt The number of assessed attributes.
-#'
-#' @return `ret_list` A list containing:
-#' * `pxi`: The base rate of class membership
-#' * `beta`: The estimated item parameters
-#'
-#' @noRd
-format_gdina_as_lcdmr  <- function(gdina_mod, n, natt) {
-  pxi <- gdina_mod$struc.parm
-
-  beta <- gdina_mod$LC.prob %>%
-    tibble::as_tibble()
-
-  params <- att_profile(natt)
-
-  colnames(beta) <- params
-
-  ### Final List -----
-  ret_list <- list(
-    pxi = pxi,
-    beta = beta
-  )
   return(ret_list)
 }

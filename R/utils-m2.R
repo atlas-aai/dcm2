@@ -265,10 +265,10 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
   for(ii in 1:nrow(qmatrix)) {
     if(sum(qmatrix[ii, ]) > 1) {
       design_matrix[[ii]] <- possible_parameters(sum(qmatrix[ii, ]), model_type) %>%
-        tibble::as_tibble() %>%
+        tibble::as_tibble(.name_repair = "unique_quiet") %>%
         only_if(model_type == "LCDM")(modelr::model_matrix)(., stats::as.formula(paste0("~ .^", ncol(.)))) %>%
         only_if(model_type %in% c("ACDM", "LLM", "RRUM"))(dplyr::mutate)(int = 1) %>%
-        only_if(model_type %in% c("ACDM", "LLM", "RRUM"))(dplyr::select)(.data$int, dplyr::everything()) %>%
+        only_if(model_type %in% c("ACDM", "LLM", "RRUM"))(dplyr::select)("int", dplyr::everything()) %>%
         as.matrix() %>%
         unname()
     } else {
@@ -277,8 +277,8 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
 
       design_matrix[[ii]][, 1] <- 1
       design_matrix[[ii]][, 2] <- possible_parameters(sum(qmatrix[ii, ]), model_type) %>%
-        tibble::as_tibble() %>%
-        only_if(model_type %in% c("DINO", "DINA", "BUGDINO"))(dplyr::select)(-.data$V1) %>%
+        tibble::as_tibble(.name_repair = "unique_quiet") %>%
+        only_if(model_type %in% c("DINO", "DINA", "BUGDINO"))(dplyr::select)(-"...1") %>%
         as.matrix() %>%
         unname()
     }
@@ -305,10 +305,10 @@ possible_parameters <- function(natt, model_type) {
       expand.grid() %>%
       tibble::as_tibble() %>%
       dplyr::mutate(total = rowSums(.)) %>%
-      dplyr::select(dplyr::everything(), .data$total) %>%
-      dplyr::arrange_at(dplyr::vars(.data$total,
+      dplyr::select(dplyr::everything(), "total") %>%
+      dplyr::arrange_at(dplyr::vars("total",
                                     dplyr::desc(-dplyr::one_of("total")))) %>%
-      dplyr::select(-.data$total) %>%
+      dplyr::select(-"total") %>%
       as.matrix() %>%
       unname()
   } else if(model_type == "DINA") {
@@ -444,22 +444,22 @@ item_param_profiles <- function(natt) {
       tibble::as_tibble(.name_repair = ~att_names) %>%
       dplyr::mutate(sum = rowSums(.)) %>%
       dplyr::filter(.data$sum > 1) %>%
-      dplyr::select(-.data$sum) %>%
+      dplyr::select(-"sum") %>%
       tibble::rowid_to_column("item") %>%
-      tidyr::pivot_longer(cols = c(-.data$item), names_to = "att",
+      tidyr::pivot_longer(cols = -"item", names_to = "att",
                           values_to = "present") %>%
       dplyr::mutate(att = stringr::str_remove(.data$att, "att_")) %>%
       dplyr::filter(.data$present == 1) %>%
-      dplyr::select(-.data$present) %>%
+      dplyr::select(-"present") %>%
       dplyr::group_by(.data$item) %>%
       dplyr::mutate(param = dplyr::row_number()) %>%
       dplyr::ungroup() %>%
       tidyr::pivot_wider(names_from = "param", values_from = "att") %>%
-      dplyr::select(-.data$item) %>%
+      dplyr::select(-"item") %>%
       tidyr::unite(., col = "param", sep = "", remove = FALSE, na.rm = T) %>%
-      dplyr::select(.data$param) %>%
+      dplyr::select("param") %>%
       dplyr::mutate(param = stringr::str_c("Int", .data$param)) %>%
-      dplyr::pull(.data$param)
+      dplyr::pull("param")
   } else {
     ints <- NULL
   }
@@ -625,10 +625,10 @@ as_binary <- function(x) {
     expand.grid() %>%
     tibble::as_tibble() %>%
     dplyr::mutate(total = rowSums(.)) %>%
-    dplyr::select(dplyr::everything(), .data$total) %>%
-    dplyr::arrange_at(dplyr::vars(.data$total,
+    dplyr::select(dplyr::everything(), "total") %>%
+    dplyr::arrange_at(dplyr::vars("total",
                                   dplyr::desc(-dplyr::one_of("total")))) %>%
-    dplyr::select(-.data$total) %>%
+    dplyr::select(-"total") %>%
     as.matrix() %>%
     unname()
   return(profiles)
