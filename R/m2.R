@@ -7,7 +7,7 @@
 #' @param struc_params A vector containing the structural parameters of the
 #' estimated model
 #' @param pi_matrix An item-by-class matrix containing the probability of a
-#' correct response by members of each latent class                              (put into its own package - to use with measr)
+#' correct response by members of each latent class
 #' @param qmatrix A data frame containing the Q-matrix
 #' @param num_item_params A vector containing the number of estimated item
 #' parameters for each item
@@ -15,8 +15,6 @@
 #' @param link A character containing the link function.
 #' @param model_type A character containing the model type (e.g., `LCDM`)
 #' that was estimated.
-#'
-#' @family model fit estimators
 #'
 #' @return A data frame containing:
 #' * `m2`: The M2 statistic
@@ -31,11 +29,11 @@
 #'    \eqn{M_2}{M2} statistic to evaluate the fit of cognitive diagnostic
 #'    models. *Journal of Educational and Behavioral Statistics, 41*, 3-26.
 #'    doi:10.3102/1076998615621293
-#' @export
-m2_fit <- function(data, struc_params, pi_matrix, qmatrix, num_item_params,
-                   ci = 0.9, link = "logit",
-                   model_type = c("LCDM", "GDINA", "ACDM", "LLM", "RRUM",
-                                  "DINO", "DINA", "BUGDINO")) {
+#' @noRd
+calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, num_item_params,
+                    ci = 0.9, link = "logit",
+                    model_type = c("LCDM", "GDINA", "ACDM", "LLM", "RRUM",
+                                   "DINO", "DINA", "BUGDINO")) {
 
   # data checks
   check_data(data, qmatrix)
@@ -43,7 +41,7 @@ m2_fit <- function(data, struc_params, pi_matrix, qmatrix, num_item_params,
   check_pi_matrix(pi_matrix, qmatrix)
   check_qmatrix(qmatrix, pi_matrix)
   ci <- check_ci(ci)
-  model_type <- check_model_type(model_type)
+  model_type <- rlang::arg_match(model_type)
 
   if(model_type %in% c("DINO", "DINA", "BUGDINO")) {
     exp_num_item_params <- rep(2, nrow(qmatrix))
