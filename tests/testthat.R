@@ -1,4 +1,3 @@
 library(testthat)
-library(lcdmr)
 
-test_check("lcdmr")
+test_check("dcm.m2")
