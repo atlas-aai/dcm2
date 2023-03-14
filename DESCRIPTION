@@ -1,4 +1,4 @@
-Package: dcm.m2
+Package: dcm2
 Type: Package
 Title: Calculating the M2 Model Fit Statistic for DCMs
 Version: 1.0.0
@@ -20,7 +20,6 @@ Depends:
     R (>= 3.5.0)
 Imports:
     dplyr (>= 0.8.4),
-    GDINA (>= 2.8.7),
     glue (>= 1.4.2),
     magrittr (>= 1.5),
     methods (>= 4.1.0),
@@ -42,6 +41,6 @@ LinkingTo:
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Language: en-US
 NeedsCompilation: yes

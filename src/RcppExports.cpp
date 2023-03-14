@@ -13,7 +13,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // Mord
 Rcpp::List Mord(arma::vec item_no, arma::mat& LCprob, arma::vec prior);
-RcppExport SEXP _dcm_m2_Mord(SEXP item_noSEXP, SEXP LCprobSEXP, SEXP priorSEXP) {
+RcppExport SEXP _dcm2_Mord(SEXP item_noSEXP, SEXP LCprobSEXP, SEXP priorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -26,11 +26,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_dcm_m2_Mord", (DL_FUNC) &_dcm_m2_Mord, 3},
+    {"_dcm2_Mord", (DL_FUNC) &_dcm2_Mord, 3},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_dcm_m2(DllInfo *dll) {
+RcppExport void R_init_dcm2(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
