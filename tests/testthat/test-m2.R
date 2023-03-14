@@ -17,7 +17,6 @@ test_that("M2 for LCDM", {
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
-                     num_item_params = 2 ^ rowSums(data.frame(data$q_matrix)),
                      ci = .9,
                      link = "logit", model_type = "LCDM")
 
@@ -50,7 +49,6 @@ test_that("M2 works - DINA", {
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
-                     num_item_params = rep(2, test_length * attributes),
                      ci = .9,
                      link = "logit", model_type = "DINA")
 
@@ -83,7 +81,6 @@ test_that("M2 works - DINO", {
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
-                     num_item_params = rep(2, test_length * attributes),
                      ci = .9,
                      link = "logit", model_type = "DINO")
 
@@ -116,7 +113,6 @@ test_that("M2 works - ACDM", {
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
-                     num_item_params = c(2, 2, 2, 2, 3, 3, 2, 3),
                      ci = .9,
                      link = "logit", model_type = "ACDM")
 
@@ -149,7 +145,6 @@ test_that("M2 works - LLM", {
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
-                     num_item_params = c(2, 2, 2, 2, 3, 3, 2, 3),
                      ci = .9,
                      link = "logit", model_type = "LLM")
 
@@ -182,7 +177,6 @@ test_that("M2 works - RRUM", {
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
-                     num_item_params = c(2, 2, 2, 2, 3, 3, 2, 3),
                      ci = .9,
                      link = "logit", model_type = "RRUM")
 
@@ -215,7 +209,6 @@ test_that("M2 works - BUGDINO", {
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
-                     num_item_params = rep(2, test_length * attributes),
                      ci = .9,
                      link = "logit", model_type = "BUGDINO")
 

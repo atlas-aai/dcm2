@@ -1,3 +1,3 @@
 library(testthat)
 
-test_check("dcm.m2")
+test_check("dcm2")
