@@ -1,6 +1,4 @@
-#' Model Fit M2 Calculations
-#'
-#' Estimate the M2 statistic as described by Liu et al. (2016).
+#' Calculate the M2
 #'
 #' @param data A data frame containing the raw data, where there is one row per
 #' respondent and one column per item
@@ -9,29 +7,14 @@
 #' @param pi_matrix An item-by-class matrix containing the probability of a
 #' correct response by members of each latent class
 #' @param qmatrix A data frame containing the Q-matrix
-#' @param num_item_params A vector containing the number of estimated item
-#' parameters for each item
 #' @param ci The confidence interval for the RMSEA, computed from the M2
 #' @param link A character containing the link function.
 #' @param model_type A character containing the model type (e.g., `LCDM`)
 #' that was estimated.
 #'
-#' @return A data frame containing:
-#' * `m2`: The M2 statistic
-#' * `df`: Degrees of freedom for the M2 statistic
-#' * `pval`: _p_-value for the M2 statistic
-#' * `rmsea`: Root mean square error of approximation
-#' * `ci_lower`: Lower end of `ci` interval for RMSEA
-#' * `ci_upper`: Upper end of `ci` interval for RMSEA
-#' * `srmsr`: Standardized root mean square residual
-#'
-#' @references Liu, Y., Tian, W., & Xin, T. (2016). An application of
-#'    \eqn{M_2}{M2} statistic to evaluate the fit of cognitive diagnostic
-#'    models. *Journal of Educational and Behavioral Statistics, 41*, 3-26.
-#'    doi:10.3102/1076998615621293
 #' @noRd
-calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, num_item_params,
-                    ci = 0.9, link = "logit",
+calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
+                    link = "logit",
                     model_type = c("LCDM", "GDINA", "ACDM", "LLM", "RRUM",
                                    "DINO", "DINA", "BUGDINO")) {
 
@@ -43,20 +26,18 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, num_item_params,
   ci <- check_ci(ci)
   model_type <- rlang::arg_match(model_type)
 
-  if(model_type %in% c("DINO", "DINA", "BUGDINO")) {
-    exp_num_item_params <- rep(2, nrow(qmatrix))
-  } else if(model_type %in% c("LCDM", "GDINA")) {
-    exp_num_item_params <- qmatrix %>%
+  num_item_params <- if (model_type %in% c("DINO", "DINA", "BUGDINO")) {
+    rep(2, nrow(qmatrix))
+  } else if (model_type %in% c("LCDM", "GDINA")) {
+    qmatrix %>%
       modelr::model_matrix(stats::as.formula(paste0("~ .^", ncol(.)))) %>%
       dplyr::mutate(total_params = rowSums(.)) %>%
       dplyr::pull("total_params")
-  } else if(model_type %in% c("ACDM", "LLM", "RRUM")) {
-    exp_num_item_params <- qmatrix %>%
+  } else if (model_type %in% c("ACDM", "LLM", "RRUM")) {
+    qmatrix %>%
       dplyr::mutate(total_params = rowSums(.) + 1) %>%
       dplyr::pull("total_params")
   }
-
-  check_num_item_params(num_item_params, qmatrix, exp_num_item_params)
 
   model_type <- ifelse(model_type == "GDINA", "LCDM", model_type)
 
