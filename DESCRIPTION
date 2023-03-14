@@ -35,6 +35,7 @@ Imports:
     truncnorm (>= 1.0-8),
     vctrs (>= 0.3.8)
 Suggests:
+    covr,
     GDINA,
     roxygen2,
     spelling,
