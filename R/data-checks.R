@@ -24,16 +24,6 @@ check_ci <- function(x) {
   }
 }
 
-check_model_type <- function(x) {
-  if (!(x %in% c("LCDM", "GDINA", "DINA", "DINO", "ACDM", "LLM", "RRUM",
-                 "BUGDINO"))) {
-    stop("`model_type` must be LCDM, GDINA, DINA, DINO, ACDM, LLM, RRUM, or BUGDINO",
-         call. = FALSE)
-  }
-
-  x
-}
-
 check_data <- function(data, qmatrix) {
   if (any(class(data) != c("matrix", "array"))) {
     stop("`data` must be a matrix.",
