@@ -10,6 +10,8 @@ m2_fit(model, ci = 0.9, ...)
 \item{model}{An estimated diagnostic classification model.}
 
 \item{ci}{The confidence interval for the RMSEA.}
+
+\item{...}{Unused, for extensibility.}
 }
 \value{
 A data frame containing:
@@ -30,5 +32,5 @@ Estimate the M2 statistic as described by Liu et al. (2016).
 Liu, Y., Tian, W., & Xin, T. (2016). An application of
 \eqn{M_2}{M2} statistic to evaluate the fit of cognitive diagnostic
 models. \emph{Journal of Educational and Behavioral Statistics, 41}, 3-26.
-doi:10.3102/1076998615621293
+\url{https://doi.org/10.3102/1076998615621293}
 }
