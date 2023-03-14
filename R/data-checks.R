@@ -36,7 +36,8 @@ check_data <- function(data, qmatrix) {
   }
 
   if (ncol(data) != nrow(qmatrix)) {
-    stop("The number of items in `data` (i.e., the number of columns) must equal the number of items in the Q-matrix.",
+    stop(paste("The number of items in `data` (i.e., the number of columns)",
+               "must equal the number of items in the Q-matrix."),
          call. = FALSE)
   }
 
@@ -53,7 +54,8 @@ check_struc_params <- function(struc_params, qmatrix) {
   }
 
   if (length(struc_params) != 2^ncol(qmatrix)) {
-    stop("The length of `struc_params` does not match the number of latent classes indicated by `qmatrix`.",
+    stop(paste("The length of `struc_params` does not match the number of",
+               "latent classes indicated by `qmatrix`."),
          call. = FALSE)
   }
 
@@ -70,12 +72,14 @@ check_pi_matrix <- function(pi_matrix, qmatrix) {
   }
 
   if (nrow(pi_matrix) != nrow(qmatrix)) {
-    stop("The number of items specific by `pi_matrix` and `qmatrix` do not match.",
+    stop(paste("The number of items specific by `pi_matrix` and `qmatrix` do",
+               "not match."),
          call. = FALSE)
   }
 
   if (ncol(pi_matrix) != 2^ncol(qmatrix)) {
-    stop("The number of latent classes specified in `pi_matrix` and `qmatrix` do not match.",
+    stop(paste("The number of latent classes specified in `pi_matrix` and",
+               "`qmatrix` do not match."),
          call. = FALSE)
   }
 
@@ -92,12 +96,14 @@ check_qmatrix <- function(qmatrix, pi_matrix) {
   }
 
   if (nrow(pi_matrix) != nrow(qmatrix)) {
-    stop("The number of items specific by `pi_matrix` and `qmatrix` do not match.",
+    stop(paste("The number of items specific by `pi_matrix` and `qmatrix`",
+               "do not match."),
          call. = FALSE)
   }
 
   if (ncol(pi_matrix) != 2^ncol(qmatrix)) {
-    stop("The number of latent classes specified in `pi_matrix` and `qmatrix` do not match.",
+    stop(paste("The number of latent classes specified in `pi_matrix` and",
+               "`qmatrix` do not match."),
          call. = FALSE)
   }
 }

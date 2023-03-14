@@ -18,7 +18,7 @@ test_that("test calc_bivariate_prob", {
 
   pi_matrix <- matrix(c(.3, .65,
                         .21, .76),
-                      nrow = 2, ncol = 2, byrow = T)
+                      nrow = 2, ncol = 2, byrow = TRUE)
 
   bi <- matrix(NA, num_items, num_items)
   output <- calc_bivariate_prob(num_items, bi, pi_matrix, base_rates)
@@ -35,7 +35,7 @@ test_that("test calc_univariate_prob", {
 
   pi_matrix <- matrix(c(.3, .65,
                         .21, .76),
-                      nrow = 2, ncol = 2, byrow = T)
+                      nrow = 2, ncol = 2, byrow = TRUE)
   uni <- numeric(num_items)
 
   output <- calc_univariate_prob(num_items, uni, pi_matrix, base_rates)
@@ -162,17 +162,17 @@ test_that("test calc_design_matrix - LCDM", {
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[2]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[3]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[4]],
                matrix(c(1, 1, 1, 1,
                         0, 1, 0, 1,
                         0, 0, 1, 1,
                         0, 0, 0, 1),
-                      nrow = 4, ncol = 4, byrow = F))
+                      nrow = 4, ncol = 4, byrow = FALSE))
 })
 
 test_that("test calc_design_matrix - DINO", {
@@ -185,15 +185,15 @@ test_that("test calc_design_matrix - DINO", {
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[2]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[3]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[4]],
                matrix(c(1, 1, 1, 1,
                         0, 1, 1, 1),
-                      nrow = 4, ncol = 2, byrow = F))
+                      nrow = 4, ncol = 2, byrow = FALSE))
 })
 
 test_that("test calc_design_matrix - DINA", {
@@ -206,15 +206,15 @@ test_that("test calc_design_matrix - DINA", {
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[2]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[3]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[4]],
                matrix(c(1, 1, 1, 1,
                         0, 0, 0, 1),
-                      nrow = 4, ncol = 2, byrow = F))
+                      nrow = 4, ncol = 2, byrow = FALSE))
 })
 
 test_that("test calc_design_matrix - ACDM", {
@@ -227,16 +227,16 @@ test_that("test calc_design_matrix - ACDM", {
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[2]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[3]],
-               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 0, 1), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[4]],
                matrix(c(1, 1, 1, 1,
                         0, 1, 0, 1,
                         0, 0, 1, 1),
-                      nrow = 4, ncol = 3, byrow = F))
+                      nrow = 4, ncol = 3, byrow = FALSE))
 })
 
 test_that("test calc_design_matrix - BUGDINO", {
@@ -249,15 +249,15 @@ test_that("test calc_design_matrix - BUGDINO", {
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
-               matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[2]],
-               matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[3]],
-               matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = F))
+               matrix(c(1, 1, 1, 0), nrow = 2, ncol = 2, byrow = FALSE))
   expect_equal(output[[4]],
                matrix(c(1, 1, 1, 1,
                         1, 0, 0, 0),
-                      nrow = 4, ncol = 2, byrow = F))
+                      nrow = 4, ncol = 2, byrow = FALSE))
 })
 
 test_that("test possible_parameters - LCDM", {
@@ -268,7 +268,7 @@ test_that("test possible_parameters - LCDM", {
                         1, 0,
                         0, 1,
                         1, 1),
-                      nrow = 4, ncol = 2, byrow = T))
+                      nrow = 4, ncol = 2, byrow = TRUE))
 })
 
 test_that("test possible_parameters - ACDM", {
@@ -279,7 +279,7 @@ test_that("test possible_parameters - ACDM", {
                         1, 0,
                         0, 1,
                         1, 1),
-                      nrow = 4, ncol = 2, byrow = T))
+                      nrow = 4, ncol = 2, byrow = TRUE))
 })
 
 test_that("test possible_parameters - LLM", {
@@ -290,7 +290,7 @@ test_that("test possible_parameters - LLM", {
                         1, 0,
                         0, 1,
                         1, 1),
-                      nrow = 4, ncol = 2, byrow = T))
+                      nrow = 4, ncol = 2, byrow = TRUE))
 })
 
 test_that("test possible_parameters - RRUM", {
@@ -301,7 +301,7 @@ test_that("test possible_parameters - RRUM", {
                         1, 0,
                         0, 1,
                         1, 1),
-                      nrow = 4, ncol = 2, byrow = T))
+                      nrow = 4, ncol = 2, byrow = TRUE))
 })
 
 test_that("test possible_parameters - DINO", {
@@ -312,7 +312,7 @@ test_that("test possible_parameters - DINO", {
                         1, 1,
                         1, 1,
                         1, 1),
-                      nrow = 4, ncol = 2, byrow = T))
+                      nrow = 4, ncol = 2, byrow = TRUE))
 })
 
 test_that("test possible_parameters - DINA", {
@@ -323,7 +323,7 @@ test_that("test possible_parameters - DINA", {
                         1, 0,
                         1, 0,
                         1, 1),
-                      nrow = 4, ncol = 2, byrow = T))
+                      nrow = 4, ncol = 2, byrow = TRUE))
 })
 
 test_that("test possible_parameters - BUGDINO", {
@@ -334,7 +334,7 @@ test_that("test possible_parameters - BUGDINO", {
                         1, 0,
                         1, 0,
                         1, 0),
-                      nrow = 4, ncol = 2, byrow = T))
+                      nrow = 4, ncol = 2, byrow = TRUE))
 })
 
 test_that("test calc_emp_marginal_prob", {
@@ -343,7 +343,7 @@ test_that("test calc_emp_marginal_prob", {
                           0, 1,
                           1, 1,
                           0, 0),
-                 nrow = 5, ncol = 2, byrow = T)
+                 nrow = 5, ncol = 2, byrow = TRUE)
 
   output <- calc_emp_marginal_prob(data, 5)
 
@@ -357,7 +357,7 @@ test_that("test calc_mod_marginal_prob", {
                         .15, .77,
                         .24, .90,
                         .30, .65),
-                      nrow = 5, ncol = 2, byrow = T)
+                      nrow = 5, ncol = 2, byrow = TRUE)
 
   base_rates <- c(.5, .5)
 
@@ -379,7 +379,7 @@ test_that("test calc_covariance_matrix", {
                         .15, .77,
                         .24, .90,
                         .30, .65),
-                      nrow = 5, ncol = 2, byrow = T)
+                      nrow = 5, ncol = 2, byrow = TRUE)
 
   base_rates <- c(.5, .5)
 
@@ -397,9 +397,9 @@ test_that("test calc_covariance_matrix", {
 test_that("test calc_jacobian_matrix", {
   pi_matrix <- matrix(c(.3, .8,
                         .2, .7),
-                      nrow = 2, ncol = 2, byrow = T)
+                      nrow = 2, ncol = 2, byrow = TRUE)
 
-  base_rates <- matrix(c(.5, .5), nrow = 1, byrow = T)
+  base_rates <- matrix(c(.5, .5), nrow = 1, byrow = TRUE)
   colnames(base_rates) <- c("0", "1")
 
   num_item_params <- c(rep(2, 2))
@@ -419,7 +419,7 @@ test_that("test calc_jacobian_matrix", {
                matrix(c(.185, .08, 0, 0, .075,
                         0, 0, .185, .105, .05,
                         .077, .056, .108, .084, .015),
-                      nrow = 3, ncol = 5, byrow = T))
+                      nrow = 3, ncol = 5, byrow = TRUE))
 })
 
 test_that("test calc_c_r", {
@@ -430,7 +430,7 @@ test_that("test calc_c_r", {
                         .3, .85,
                         .15, .8,
                         .1, .7),
-                      nrow = 5, ncol = 2, byrow = T)
+                      nrow = 5, ncol = 2, byrow = TRUE)
   base_rates <- matrix(c(.4, .6), nrow = 1)
   colnames(base_rates) <- c("0", "1")
   l <- 2

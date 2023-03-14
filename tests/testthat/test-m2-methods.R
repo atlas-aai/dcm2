@@ -3,7 +3,7 @@ test_that("methods work", {
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
                               Q = data.frame(data$q_matrix),
                               model = "logitGDINA",
-                              control=list(conv.type="neg2LL")))
+                              control = list(conv.type = "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
   dcm2_m2 <- m2_fit(gdina_mod, ci = 0.9)

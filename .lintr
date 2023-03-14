@@ -1,0 +1,7 @@
+linters: linters_with_defaults()
+exclusions: list(
+    "R/utils-m2.R" = list(
+      cyclocomp_linter = Inf
+    )
+  )
+encoding: "UTF-8"

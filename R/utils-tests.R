@@ -99,7 +99,7 @@ generate_data <- function(sample_size, test_length, prevalence,
     all_combo = all_combo, att = attributes)
 
   # generate item parameters -----
-  if(attributes == 1) {
+  if (attributes == 1) {
     needed_params <-
       modelr::model_matrix(q_matrix, stats::as.formula(paste0("~ .^", 2))) %>%
       tibble::rowid_to_column(var = "item_id") %>%
@@ -152,9 +152,9 @@ generate_data <- function(sample_size, test_length, prevalence,
                                 int = dplyr::case_when(
                                   stringr::str_detect(.data$param, "__") ~
                                     truncnorm::rtruncnorm(dplyr::n(),
-                                                          a = -1 * min(.data$mef,
-                                                                       na.rm =
-                                                                         TRUE),
+                                                          a = -1 *
+                                                            min(.data$mef,
+                                                                na.rm =  TRUE),
                                                           mean = dis / 1.5,
                                                           sd = sqrt(1 / 36))
                                 ),
@@ -176,7 +176,7 @@ generate_data <- function(sample_size, test_length, prevalence,
     dplyr::select({{param_names}})
 
   # generate response data -----
-  if(attributes == 1) {
+  if (attributes == 1) {
     resp_data <- profiles %>%
       dplyr::select(-"resp_id") %>%
       modelr::model_matrix(stats::as.formula(paste0("~ .^", 2))) %>%
@@ -198,7 +198,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       dplyr::arrange(.data$resp_id, .data$item_id) %>%
       dplyr::mutate(param_value = .data$mastery * .data$item_param) %>%
       dplyr::group_by(.data$resp_id, .data$item_id) %>%
-      dplyr::summarize(log_odds = sum(.data$param_value), .groups = 'drop') %>%
+      dplyr::summarize(log_odds = sum(.data$param_value), .groups = "drop") %>%
       dplyr::ungroup() %>%
       dplyr::mutate(prob = purrr::map_dbl(.data$log_odds, inv_logit),
                     rand = stats::runif(dplyr::n(), min = 0, max = 1),
@@ -227,7 +227,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       dplyr::arrange(.data$resp_id, .data$item_id) %>%
       dplyr::mutate(param_value = .data$mastery * .data$item_param) %>%
       dplyr::group_by(.data$resp_id, .data$item_id) %>%
-      dplyr::summarize(log_odds = sum(.data$param_value), .groups = 'drop') %>%
+      dplyr::summarize(log_odds = sum(.data$param_value), .groups = "drop") %>%
       dplyr::ungroup() %>%
       dplyr::mutate(prob = purrr::map_dbl(.data$log_odds, inv_logit),
                     rand = stats::runif(dplyr::n(), min = 0, max = 1),

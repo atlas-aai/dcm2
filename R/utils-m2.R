@@ -11,11 +11,17 @@
 #'
 #' @noRd
 calc_emp_marginal_prob <- function(data, n) {
-  p1 <- colMeans(data, na.rm = TRUE)            # calculate first-order marginal probabilities (ie for single items)
-  x <- as.matrix(data)                          # convert the data frame to a matrix
-  p2 <- crossprod(x, x) / n                     # calculate the second-order marginal probabilities (ie for item pairs)
+  # calculate first-order marginal probabilities (ie for single items)
+  p1 <- colMeans(data, na.rm = TRUE)
 
-  p <- c(as.matrix(p1), p2[lower.tri(p2)])      # create a vector with the first- and second-order marginal probabilities
+  # convert the data frame to a matrix
+  x <- as.matrix(data)
+
+  # calculate the second-order marginal probabilities (ie for item pairs)
+  p2 <- crossprod(x, x) / n
+
+  # create a vector with the first- and second-order marginal probabilities
+  p <- c(as.matrix(p1), p2[lower.tri(p2)])
   return(p)
 }
 
@@ -28,12 +34,16 @@ calc_emp_marginal_prob <- function(data, n) {
 #'
 #' @noRd
 att_profile <- function(natt) {
-  att_names <- glue::glue("att_{1:natt}")
+  att_names <- glue::glue("att_{1:natt}") # nolint
 
-  profile <- as_binary(natt) %>%                                                # all possible combinations of attribute mastery
-    tibble::as_tibble(.name_repair = ~att_names) %>%                            # specify attribute names
-    tidyr::unite(., col = "profile", sep = "", remove = FALSE, na.rm = T) %>%   # create attribute mastery profile
-    dplyr::pull(profile)                                                        # pull attribute mastery profile
+  # all possible combinations of attribute mastery
+  profile <- as_binary(natt) %>%
+    # specify attribute names
+    tibble::as_tibble(.name_repair = ~att_names) %>%
+    # create attribute mastery profile
+    tidyr::unite(., col = "profile", sep = "", remove = FALSE, na.rm = TRUE) %>%
+    # pull attribute mastery profile
+    dplyr::pull(profile)
 
   return(profile)
 }
@@ -54,13 +64,17 @@ att_profile <- function(natt) {
 #'
 #' @noRd
 calc_mod_marginal_prob <- function(num_items, pi_matrix, base_rates) {
+  # create an empty vector for the first-order marginal probabilities
+  uni <- numeric(num_items)
+  # calculate the first-order marginal probabilities
+  uni <- calc_univariate_prob(num_items, uni, pi_matrix, base_rates)
 
-  uni <- numeric(num_items)                                                     # create an empty vector for the first-order marginal probabilities
-  uni <- calc_univariate_prob(num_items, uni, pi_matrix, base_rates)            # calculate the first-order marginal probabilities
-
-  bi <- matrix(NA, num_items, num_items)                                        # create an empty matrix for the second-order marginal probabilities
-  bi <- calc_bivariate_prob(num_items, bi, pi_matrix, base_rates)            # calculate the second-order marginal probabilities
-  e <- c(uni, bi[lower.tri(bi)])                                                # create a vector with the first- and second-order marginal probabilities
+  # create an empty matrix for the second-order marginal probabilities
+  bi <- matrix(NA, num_items, num_items)
+  # calculate the second-order marginal probabilities
+  bi <- calc_bivariate_prob(num_items, bi, pi_matrix, base_rates)
+  # create a vector with the first- and second-order marginal probabilities
+  e <- c(uni, bi[lower.tri(bi)])
 
   return(e)
 }
@@ -134,20 +148,22 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
   jacobian11 <- matrix(0, nrow = num_items, ncol = sum(num_item_params))
   cumulative_parameters <- cumsum(num_item_params)
 
-  for(ii in 1:num_items) {
-    # multiply the prob of a correct response times prob of incorrect response times design matrix times base rate
-    # this estimates the covariance of the first-order marginal probabilities
-    # by using the design matrix, this controls for parameters not estimated for certain latent classes
+  for (ii in 1:num_items) {
+    # multiply the prob of a correct response times prob of incorrect response
+    # times design matrix times base rate this estimates the covariance of the
+    # first-order marginal probabilities by using the design matrix, this
+    # controls for parameters not estimated for certain latent classes
     jacobian11[ii,
                (cumulative_parameters[ii] -
                   num_item_params[ii] + 1):cumulative_parameters[ii]] <-
-      colSums(pi_matrix[ii,] * (1 - pi_matrix[ii,]) *
+      colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
               design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
   }
 
-  # for jacobian12, we're calculating the difference in the prob of a correct response between
-  # masters of all the attributes and the remaining latent classes
-  # for a single attribute assessment, jacobian12 is just the prob of a correct response from nonmasters
+  # for jacobian12, we're calculating the difference in the prob of a correct
+  # response between masters of all the attributes and the remaining latent
+  # classes for a single attribute assessment, jacobian12 is just the prob of a
+  # correct response from nonmasters
   if (num_attr == 1) {
     jacobian12 <- matrix(pi_matrix[, 1], ncol = 1)
   } else {
@@ -159,23 +175,25 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
 
   row_iterator <- 1
 
-  for(jj in 1:num_items) {
-    # multiply the prob of a correct response times prob of incorrect response times design matrix times base rate times the prob correct for a second item
-    # this estimates the covariance of the second-order marginal probabilities
-    # by using the design matrix, this controls for parameters not estimated for certain latent classes
-    for(ii in 1:num_items) {
-      if(jj < ii) {
+  for (jj in 1:num_items) {
+    # multiply the prob of a correct response times prob of incorrect response
+    # times design matrix times base rate times the prob correct for a second
+    # item this estimates the covariance of the second-order marginal
+    # probabilities by using the design matrix, this controls for parameters not
+    # estimated for certain latent classes
+    for (ii in 1:num_items) {
+      if (jj < ii) {
         jacobian21[row_iterator,
                    (cumulative_parameters[jj] -
                       num_item_params[jj] + 1):cumulative_parameters[jj]] <-
-          colSums(pi_matrix[jj,] * (1 - pi_matrix[jj,]) *
+          colSums(pi_matrix[jj, ] * (1 - pi_matrix[jj, ]) *
                     design_matrix[[jj]][patt[jj, ], ] * as.vector(base_rates) *
                     pi_matrix[ii, ])
 
         jacobian21[row_iterator,
                    (cumulative_parameters[ii] -
                       num_item_params[ii] + 1):cumulative_parameters[ii]] <-
-          colSums(pi_matrix[ii,] * (1 - pi_matrix[ii,]) *
+          colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
                     design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates) *
                     pi_matrix[jj, ])
 
@@ -184,16 +202,17 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
     }
   }
 
-  # for jacobian12, we're calculating the difference in the prob of a correct response between
-  # masters of all the attributes and the remaining latent classes for each pair of items
-  # for a single attribute assessment, jacobian22 is just the prob of a correct response from nonmasters
+  # for jacobian12, we're calculating the difference in the prob of a correct
+  # response between masters of all the attributes and the remaining latent
+  # classes for each pair of items for a single attribute assessment, jacobian22
+  # is just the prob of a correct response from nonmasters
   jacobian22_expected <- matrix(0, nrow = choose(num_items, 2), ncol = l)
 
   row_iterator <- 1
 
   for (jj in 1:num_items) {
     for (ii in 1:num_items) {
-      if(jj < ii) {
+      if (jj < ii) {
         jacobian22_expected[row_iterator, ] <- pi_matrix[jj, ] *
           pi_matrix[ii, ]
 
@@ -262,13 +281,20 @@ calc_covariance_matrix <- function(num_items, pi_matrix, base_rates) {
 calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
   design_matrix <- list()
 
-  for(ii in 1:nrow(qmatrix)) {
-    if(sum(qmatrix[ii, ]) > 1) {
-      design_matrix[[ii]] <- possible_parameters(sum(qmatrix[ii, ]), model_type) %>%
+  for (ii in seq_len(nrow(qmatrix))) {
+    if (sum(qmatrix[ii, ]) > 1) {
+      design_matrix[[ii]] <- possible_parameters(sum(qmatrix[ii, ]),
+                                                 model_type) %>%
         tibble::as_tibble(.name_repair = "unique_quiet") %>%
-        only_if(model_type == "LCDM")(modelr::model_matrix)(., stats::as.formula(paste0("~ .^", ncol(.)))) %>%
-        only_if(model_type %in% c("ACDM", "LLM", "RRUM"))(dplyr::mutate)(int = 1) %>%
-        only_if(model_type %in% c("ACDM", "LLM", "RRUM"))(dplyr::select)("int", dplyr::everything()) %>%
+        only_if(model_type == "LCDM")(modelr::model_matrix)(
+          ., stats::as.formula(paste0("~ .^", ncol(.)))
+        ) %>%
+        only_if(model_type %in% c("ACDM", "LLM", "RRUM"))(dplyr::mutate)(
+          int = 1
+        ) %>%
+        only_if(model_type %in% c("ACDM", "LLM", "RRUM"))(dplyr::select)(
+          "int", dplyr::everything()
+        ) %>%
         as.matrix() %>%
         unname()
     } else {
@@ -276,9 +302,12 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
                                     ncol = num_item_params[ii])
 
       design_matrix[[ii]][, 1] <- 1
-      design_matrix[[ii]][, 2] <- possible_parameters(sum(qmatrix[ii, ]), model_type) %>%
+      design_matrix[[ii]][, 2] <- possible_parameters(sum(qmatrix[ii, ]),
+                                                      model_type) %>%
         tibble::as_tibble(.name_repair = "unique_quiet") %>%
-        only_if(model_type %in% c("DINO", "DINA", "BUGDINO"))(dplyr::select)(-"...1") %>%
+        only_if(model_type %in% c("DINO", "DINA", "BUGDINO"))(dplyr::select)(
+          -"...1"
+        ) %>%
         as.matrix() %>%
         unname()
     }
@@ -299,7 +328,7 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
 #'
 #' @noRd
 possible_parameters <- function(natt, model_type) {
-  if(model_type %in% c("LCDM", "ACDM", "LLM", "RRUM")) {
+  if (model_type %in% c("LCDM", "ACDM", "LLM", "RRUM")) {
     profiles <- rep(list(c(0L, 1L)), natt) %>%
       purrr::set_names(glue::glue("att_{seq_len(natt)}")) %>%
       expand.grid() %>%
@@ -311,16 +340,16 @@ possible_parameters <- function(natt, model_type) {
       dplyr::select(-"total") %>%
       as.matrix() %>%
       unname()
-  } else if(model_type == "DINA") {
+  } else if (model_type == "DINA") {
     profiles <- matrix(0, nrow = 2^natt, ncol = 2)
 
     profiles[, 1] <- 1
     profiles[2^natt, ] <- 1
-  } else if(model_type == "DINO") {
+  } else if (model_type == "DINO") {
     profiles <- matrix(1, nrow = 2^natt, ncol = 2)
 
     profiles[1, 2] <- 0
-  } else if(model_type == "BUGDINO") {
+  } else if (model_type == "BUGDINO") {
     profiles <- matrix(0, nrow = 2^natt, ncol = 2)
 
     profiles[, 1] <- 1
@@ -348,7 +377,7 @@ possible_parameters <- function(natt, model_type) {
 calc_patt <- function(qmatrix, l, skills_missing) {
   patt <- matrix(NA, nrow = nrow(qmatrix), ncol = l)
 
-  for (mm in seq(nrow(qmatrix))) {
+  for (mm in seq_len(nrow(qmatrix))) {
     for (nn in seq(2^rowSums(qmatrix)[mm])) {
       if (sum(qmatrix[mm, ]) == ncol(qmatrix)) {
         patt[mm, ] <- seq(2^rowSums(qmatrix)[mm])
@@ -358,30 +387,6 @@ calc_patt <- function(qmatrix, l, skills_missing) {
       }
     }
   }
-
-  # have_all <- stringr::str_c(rep("0", num_attr), collapse = "")
-  # missing_all <- stringr::str_c(rep("1", num_attr), collapse = "")
-  #
-  # if(model_type == "DINA") {
-  #   for (mm in seq(num_items)) {
-  #     for(nn in seq(l)) {
-  #       patt[mm, nn] <- ifelse(skills_missing[mm, nn] == have_all, 2, 1)
-  #     }
-  #   }
-  # } else if(model_type == "LCDM") {
-  #   for (mm in seq(num_items)) {
-  #     for(nn in seq(num_item_params[mm])) {
-  #       val <- min(which(is.na(patt[mm, ])))
-  #       patt[mm, ][skills_missing[mm, ] == skills_missing[mm, val]] <- nn
-  #     }
-  #   }
-  # } else if(model_type == "DINO") {
-  #   for (mm in seq(num_items)) {
-  #     for(nn in seq(l)) {
-  #       patt[mm, nn] <- ifelse(skills_missing[mm, nn] == missing_all, 2, 1)
-  #     }
-  #   }
-  # }
 
   return(patt)
 }
@@ -402,7 +407,7 @@ skills <- function(base_rates, l, qmatrix) {
   skills_have <- matrix(NA, nrow = nrow(qmatrix), ncol = l)
   skills_missing <- matrix(NA, nrow = nrow(qmatrix), ncol = l)
 
-  for (ii in seq(nrow(qmatrix))) {
+  for (ii in seq_len(nrow(qmatrix))) {
     skills_have[ii, ] <- colnames(base_rates)
 
     skills_needed[ii, ] <- stringr::str_c(as.character(qmatrix[ii, ]),
@@ -410,8 +415,8 @@ skills <- function(base_rates, l, qmatrix) {
 
     for (jj in 1:l) {
       temp <- ""
-      for (kk in seq(ncol(qmatrix))) {
-        if ((stringr::str_sub(skills_needed[ii, jj], kk, kk) == 1) &
+      for (kk in seq_len(ncol(qmatrix))) {
+        if ((stringr::str_sub(skills_needed[ii, jj], kk, kk) == 1) &&
             (stringr::str_sub(skills_have[ii, jj], kk, kk) == 0)) {
           temp <- stringr::str_c(temp, "1")
         } else {
@@ -437,9 +442,9 @@ item_param_profiles <- function(natt) {
 
   mefs <- c(stringr::str_c("MEF", as.character(1:natt)))
 
-  att_names <- glue::glue("att_{1:natt}")
+  att_names <- glue::glue("att_{1:natt}") # nolint
 
-  if(natt > 1) {
+  if (natt > 1) {
     ints <- as_binary(natt) %>%
       tibble::as_tibble(.name_repair = ~att_names) %>%
       dplyr::mutate(sum = rowSums(.)) %>%
@@ -456,7 +461,7 @@ item_param_profiles <- function(natt) {
       dplyr::ungroup() %>%
       tidyr::pivot_wider(names_from = "param", values_from = "att") %>%
       dplyr::select(-"item") %>%
-      tidyr::unite(., col = "param", sep = "", remove = FALSE, na.rm = T) %>%
+      tidyr::unite(., col = "param", sep = "", remove = FALSE, na.rm = TRUE) %>%
       dplyr::select("param") %>%
       dplyr::mutate(param = stringr::str_c("Int", .data$param)) %>%
       dplyr::pull("param")

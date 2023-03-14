@@ -46,9 +46,8 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
 
   n <- nrow(data)
   l <- 2 ^ num_attr
-  n_par_j <- sum(num_item_params)
 
-  empirical_marginal_probabilities <- calc_emp_marginal_prob(data, n)
+  emp_marginal_probabilities <- calc_emp_marginal_prob(data, n)
 
   base_rates <- t(as.matrix(struc_params))
   colnames(base_rates) <- att_profile(num_attr)
@@ -59,7 +58,9 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
   cr <- calc_c_r(num_items, num_item_params, pi_matrix, base_rates, l, num_attr,
                  qmatrix, model_type)
 
-  m2_stat <- n * ((t(empirical_marginal_probabilities - model_marginal_probabilities) %*% cr) %*% (empirical_marginal_probabilities - model_marginal_probabilities))
+  m2_stat <- n * (
+    (t(emp_marginal_probabilities - model_marginal_probabilities) %*% cr) %*%
+      (emp_marginal_probabilities - model_marginal_probabilities))
 
   se <- sqrt(diag(Mord(c(1:num_items), pi_matrix, base_rates)$bi) -
                c(Mord(c(1:num_items), pi_matrix, base_rates)$uni)^2)
@@ -81,9 +82,10 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
   ci <- rmsea_ci(x2 = m2_stat, df = df, n = n,
                  ci_lower = (1 - ci) / 2, ci_upper = ((1 - ci) / 2) + ci)
 
-  difr <- stats::cor(data, use = "pairwise.complete.obs") - (Mord(c(1:num_items), pi_matrix, base_rates)$bi -
-                                                               Mord(c(1:num_items), pi_matrix, base_rates)$uni %*%
-                                                               t(Mord(c(1:num_items), pi_matrix, base_rates)$uni)) /
+  difr <- stats::cor(data, use = "pairwise.complete.obs") -
+    (Mord(c(1:num_items), pi_matrix, base_rates)$bi -
+       Mord(c(1:num_items), pi_matrix, base_rates)$uni %*%
+       t(Mord(c(1:num_items), pi_matrix, base_rates)$uni)) /
     (se %*% t(se))
   srmsr <- sqrt(sum((difr[lower.tri(difr)]) ^ 2 / (num_items * (num_items -
                                                                   1) / 2)))
