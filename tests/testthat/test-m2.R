@@ -1,27 +1,5 @@
 test_that("M2 for LCDM", {
-  sample_size <- 1000
-  test_length <- 4
-  prevalence <- 0.5
-  discrimination <- 3
-  association <- 0.5
-  attributes <- 2
-  set.seed(1106)
 
-  data <- generate_data(sample_size = sample_size,
-                        test_length = test_length,
-                        prevalence = prevalence,
-                        discrimination = discrimination,
-                        association = association,
-                        attributes = attributes)
-  possible_prof <- as_binary(attributes)
-
-  data$data <- data$data %>%
-    dplyr::ungroup()
-
-  fit_dat <- as.matrix(data$data %>%
-                         tidyr::pivot_wider(names_from = "item_id",
-                                            values_from = "score") %>%
-                         dplyr::select(-.data$resp_id))
 
   out <- utils::capture.output(
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
@@ -31,12 +9,10 @@ test_that("M2 for LCDM", {
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
-  lcdmr_mod <- format_gdina_as_lcdmr(gdina_mod, nrow(data$data),
-                                     ncol(data$q_matrix))
+  # calculate m2 with dcm2
+  struc_params <- gdina_mod$struc.parm
 
-  struc_params <- lcdmr_mod$pxi
-
-  pi_matrix <- lcdmr_mod$beta %>%
+  pi_matrix <- gdina_mod$LC.prob %>%
     as.matrix() %>%
     unname()
 
@@ -48,21 +24,21 @@ test_that("M2 for LCDM", {
     as.matrix() %>%
     unname()
 
-  lcdmr_m2 <- m2_fit(data = data, struc_params = struc_params,
+  dcm2_m2 <- calc_m2(data = data, struc_params = struc_params,
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(dat$q_matrix),
-                     num_item_params = 2^rowSums(data.frame(dat$q_matrix)),
+                     num_item_params = 2 ^ rowSums(data.frame(dat$q_matrix)),
                      ci = .9,
                      link = "logit", model_type = "LCDM")
 
-  expect_equivalent(lcdmr_m2$m2, gdina_m2$M2,
-                    tol = max(.01, floor(lcdmr_m2$m2 / 100)))
-  expect_equivalent(lcdmr_m2$df, gdina_m2$M2.df)
-  expect_equivalent(lcdmr_m2$pval, gdina_m2$M2.pvalue, tol = .001)
-  expect_equivalent(lcdmr_m2$rmsea, gdina_m2$RMSEA2, tol = .001)
-  expect_equivalent(lcdmr_m2$ci_lower, gdina_m2$RMSEA2.CI[1], tol = .001)
-  expect_equivalent(lcdmr_m2$ci_upper, gdina_m2$RMSEA2.CI[2], tol = .001)
-  expect_equivalent(lcdmr_m2$srmsr, gdina_m2$SRMSR, tol = .001)
+  expect_equal(dcm2_m2$m2, gdina_m2$M2,
+               tolerance = max(.01, floor(dcm2_m2$m2 / 100)))
+  expect_equal(dcm2_m2$df, gdina_m2$M2.df)
+  expect_equal(dcm2_m2$pval, gdina_m2$M2.pvalue, tolerance = .001)
+  expect_equal(dcm2_m2$rmsea, gdina_m2$RMSEA2, tolerance = .001)
+  expect_equal(dcm2_m2$ci_lower, gdina_m2$RMSEA2.CI[1], tolerance = .001)
+  expect_equal(dcm2_m2$ci_upper, gdina_m2$RMSEA2.CI[2], tolerance = .001)
+  expect_equal(dcm2_m2$srmsr, gdina_m2$SRMSR, tolerance = .001)
 })
 
 test_that("M2 works - DINA", {
