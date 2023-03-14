@@ -35,7 +35,9 @@ Imports:
     truncnorm (>= 1.0-8),
     vctrs (>= 0.3.8)
 Suggests:
+    GDINA,
     roxygen2,
+    spelling,
     testthat (>= 2.1.0)
 LinkingTo: 
     Rcpp,
