@@ -392,7 +392,7 @@ possible_parameters <- function(natt, model_type) {
       tibble::as_tibble() %>%
       dplyr::mutate(total = rowSums(.)) %>%
       dplyr::select(dplyr::everything(), "total") %>%
-      dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) %>%
+      dplyr::arrange(total, !!! rlang::parse_exprs(attr_names)) %>%
       dplyr::select(-"total") %>%
       as.matrix() %>%
       unname()
@@ -690,7 +690,7 @@ as_binary <- function(x) {
     dplyr::mutate(total = rowSums(.)) %>%
     dplyr::select(dplyr::everything(), "total") %>%
 
-    dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) %>%
+    dplyr::arrange(total, !!! rlang::parse_exprs(attr_names)) %>%
     dplyr::select(-"total") %>%
     as.matrix() %>%
     unname()
