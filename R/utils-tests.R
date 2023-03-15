@@ -107,7 +107,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
       dplyr::rename(intercept = ".Intercept.") %>%
-      dplyr::rename_all(repair_names)
+      dplyr::rename_with(repair_names)
   } else {
     needed_params <-
       modelr::model_matrix(q_matrix, stats::as.formula(paste0("~ .^",
@@ -117,7 +117,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
       dplyr::rename(intercept = ".Intercept.") %>%
-      dplyr::rename_all(repair_names)
+      dplyr::rename_with(repair_names)
   }
   param_names <- colnames(needed_params)
   needed_params <- needed_params %>%
@@ -185,7 +185,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
       dplyr::rename(intercept = ".Intercept.") %>%
-      dplyr::rename_all(repair_names) %>%
+      dplyr::rename_with(repair_names) %>%
       tidyr::pivot_longer(cols = -"resp_id", names_to = "param",
                           values_to = "mastery") %>%
       dplyr::left_join(item_params %>%
@@ -214,7 +214,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
       dplyr::rename(intercept = ".Intercept.") %>%
-      dplyr::rename_all(repair_names) %>%
+      dplyr::rename_with(repair_names) %>%
       tidyr::pivot_longer(cols = -"resp_id", names_to = "param",
                           values_to = "mastery") %>%
       dplyr::left_join(item_params %>%
