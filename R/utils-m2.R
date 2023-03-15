@@ -693,7 +693,6 @@ as_binary <- function(x) {
     tibble::as_tibble() %>%
     dplyr::mutate(total = rowSums(.)) %>%
     dplyr::select(dplyr::everything(), "total") %>%
-
     dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) %>%
     dplyr::select(-"total") %>%
     as.matrix() %>%
