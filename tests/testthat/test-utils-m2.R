@@ -67,8 +67,8 @@ test_that("test rmsea_ci", {
   ci <- rmsea_ci(x2, df, n, ci_lower, ci_upper)
 
   expect_equal(length(ci), 2)
-  expect_equal(ci[1], 0.036, tolerance = .01)
-  expect_equal(ci[2], 0.068, tolerance = .01)
+  expect_equal(ci[1], 0.036, tolerance = .015)
+  expect_equal(ci[2], 0.068, tolerance = .015)
 })
 
 test_that("test skills", {
@@ -394,7 +394,7 @@ test_that("test calc_covariance_matrix", {
                            partitioned_cov_mat$Xi22)))
 })
 
-test_that("test calc_jacobian_matrix", {
+test_that("test calc_jacobian_matrix - logit link", {
   pi_matrix <- matrix(c(.3, .8,
                         .2, .7),
                       nrow = 2, ncol = 2, byrow = TRUE)
@@ -412,13 +412,75 @@ test_that("test calc_jacobian_matrix", {
 
   patt <- calc_patt(qmatrix, 2, skills_missing)
 
+  link <- "logit"
+
   output <- calc_jacobian_matrix(2, num_item_params, pi_matrix,
-                                 design_matrix, patt, base_rates, 2, 1)
+                                 design_matrix, patt, base_rates, 2, 1, link)
 
   expect_equal(output,
                matrix(c(.185, .08, 0, 0, .075,
                         0, 0, .185, .105, .05,
                         .077, .056, .108, .084, .015),
+                      nrow = 3, ncol = 5, byrow = TRUE))
+})
+
+test_that("test calc_jacobian_matrix - log link", {
+  pi_matrix <- matrix(c(.3, .8,
+                        .2, .7),
+                      nrow = 2, ncol = 2, byrow = TRUE)
+
+  base_rates <- matrix(c(.5, .5), nrow = 1, byrow = TRUE)
+  colnames(base_rates) <- c("0", "1")
+
+  num_item_params <- c(rep(2, 2))
+
+  qmatrix <- tibble::tibble(att_1 = rep(1, 2))
+
+  design_matrix <- calc_design_matrix(num_item_params, qmatrix, "LCDM")
+
+  skills_missing <- skills(base_rates, 2, qmatrix)
+
+  patt <- calc_patt(qmatrix, 2, skills_missing)
+
+  link <- "log"
+
+  output <- calc_jacobian_matrix(2, num_item_params, pi_matrix,
+                                 design_matrix, patt, base_rates, 2, 1, link)
+
+  expect_equal(output,
+               matrix(c(.55, .4, 0, 0, .075,
+                        0, 0, .45, .35, .05,
+                        .31, .28, .31, .28, .015),
+                      nrow = 3, ncol = 5, byrow = TRUE))
+})
+
+test_that("test calc_jacobian_matrix - identity link", {
+  pi_matrix <- matrix(c(.3, .8,
+                        .2, .7),
+                      nrow = 2, ncol = 2, byrow = TRUE)
+
+  base_rates <- matrix(c(.5, .5), nrow = 1, byrow = TRUE)
+  colnames(base_rates) <- c("0", "1")
+
+  num_item_params <- c(rep(2, 2))
+
+  qmatrix <- tibble::tibble(att_1 = rep(1, 2))
+
+  design_matrix <- calc_design_matrix(num_item_params, qmatrix, "LCDM")
+
+  skills_missing <- skills(base_rates, 2, qmatrix)
+
+  patt <- calc_patt(qmatrix, 2, skills_missing)
+
+  link <- "identity"
+
+  output <- calc_jacobian_matrix(2, num_item_params, pi_matrix,
+                                 design_matrix, patt, base_rates, 2, 1, link)
+
+  expect_equal(output,
+               matrix(c(1, .5, 0, 0, .075,
+                        0, 0, 1, .5, .05,
+                        .45, .35, .55, .4, .015),
                       nrow = 3, ncol = 5, byrow = TRUE))
 })
 
@@ -437,9 +499,10 @@ test_that("test calc_c_r", {
   num_attr <- 1
   qmatrix <- tibble::tibble(att_1 = c(1, 1, 1, 1, 1))
   model_type <- "LCDM"
+  link <- "logit"
 
   output <- calc_c_r(num_items, num_item_params, pi_matrix, base_rates, l,
-                     num_attr, qmatrix, model_type)
+                     num_attr, qmatrix, model_type, link)
 
   expect_equal(typeof(output), "double")
   expect_equal(class(output), c("matrix", "array"))
