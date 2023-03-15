@@ -139,7 +139,7 @@ test_that("test item_param_profiles", {
   expect_equal(output3, c("Intercept", "MEF1", "MEF2", "MEF3",
                           "Int12", "Int13", "Int23", "Int123"))
   expect_equal(output4, c("Intercept", "MEF1", "MEF2", "MEF3", "MEF4",
-                          "Int12", "Int13", "Int23", "Int14", "Int24",
+                          "Int12", "Int13", "Int14", "Int23", "Int24",
                           "Int34", "Int123", "Int124", "Int134",
                           "Int234", "Int1234"))
 })
