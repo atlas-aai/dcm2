@@ -161,19 +161,19 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
     # times design matrix times base rate this estimates the covariance of the
     # first-order marginal probabilities by using the design matrix, this
     # controls for parameters not estimated for certain latent classes
-    if(link == "logit") {
+    if (link == "logit") {
       jacobian11[ii,
                  (cumulative_parameters[ii] -
                     num_item_params[ii] + 1):cumulative_parameters[ii]] <-
         colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
                   design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
-    } else if(link == "log") {
+    } else if (link == "log") {
       jacobian11[ii,
                  (cumulative_parameters[ii] -
                     num_item_params[ii] + 1):cumulative_parameters[ii]] <-
         colSums(pi_matrix[ii, ] *
                   design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
-    } else if(link == "identity") {
+    } else if (link == "identity") {
       jacobian11[ii,
                  (cumulative_parameters[ii] -
                     num_item_params[ii] + 1):cumulative_parameters[ii]] <-
@@ -209,35 +209,39 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
     # estimated for certain latent classes
     for (ii in 1:num_items) {
       if (jj < ii) {
-        if(link == "logit") {
+        if (link == "logit") {
           jacobian21[row_iterator,
                      (cumulative_parameters[jj] -
                         num_item_params[jj] + 1):cumulative_parameters[jj]] <-
             colSums(pi_matrix[jj, ] * (1 - pi_matrix[jj, ]) *
-                      design_matrix[[jj]][patt[jj, ], ] * as.vector(base_rates) *
+                      design_matrix[[jj]][patt[jj, ], ] *
+                      as.vector(base_rates) *
                       pi_matrix[ii, ])
 
           jacobian21[row_iterator,
                      (cumulative_parameters[ii] -
                         num_item_params[ii] + 1):cumulative_parameters[ii]] <-
             colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
-                      design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates) *
+                      design_matrix[[ii]][patt[ii, ], ] *
+                      as.vector(base_rates) *
                       pi_matrix[jj, ])
-        } else if(link == "log") {
+        } else if (link == "log") {
           jacobian21[row_iterator,
                      (cumulative_parameters[jj] -
                         num_item_params[jj] + 1):cumulative_parameters[jj]] <-
             colSums(pi_matrix[jj, ] *
-                      design_matrix[[jj]][patt[jj, ], ] * as.vector(base_rates) *
+                      design_matrix[[jj]][patt[jj, ], ] *
+                      as.vector(base_rates) *
                       pi_matrix[ii, ])
 
           jacobian21[row_iterator,
                      (cumulative_parameters[ii] -
                         num_item_params[ii] + 1):cumulative_parameters[ii]] <-
             colSums(pi_matrix[ii, ] *
-                      design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates) *
+                      design_matrix[[ii]][patt[ii, ], ] *
+                      as.vector(base_rates) *
                       pi_matrix[jj, ])
-        } else if(link == "identity") {
+        } else if (link == "identity") {
           jacobian21[row_iterator,
                      (cumulative_parameters[jj] -
                         num_item_params[jj] + 1):cumulative_parameters[jj]] <-
