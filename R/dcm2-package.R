@@ -1,6 +1,6 @@
-#' dcm.m2: A package for the estimating the M2 statistic for DCMs
+#' dcm2: A package for the estimating the M2 statistic for DCMs
 #'
-#' @useDynLib dcm.m2, .registration = TRUE
+#' @useDynLib dcm2, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
 #' @keywords internal
 "_PACKAGE"

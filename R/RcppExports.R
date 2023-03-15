@@ -9,6 +9,6 @@
 #' @author Wenchao Ma, https://github.com/Wenchao-Ma/GDINA
 #' @export
 Mord <- function(item_no, LCprob, prior) {
-    .Call(`_dcm_m2_Mord`, item_no, LCprob, prior)
+    .Call(`_dcm2_Mord`, item_no, LCprob, prior)
 }
 
