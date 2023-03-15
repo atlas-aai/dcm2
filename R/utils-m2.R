@@ -92,6 +92,7 @@ calc_mod_marginal_prob <- function(num_items, pi_matrix, base_rates) {
 #' @param num_attr An integer containing the number of assessed attributes
 #' @param qmatrix A data frame containing the Q-matrix
 #' @param model_type A string containing the type of model (e.g., 'LCDM')
+#' @param link A string containing the type of link function (e.g., 'logit')
 #'
 #' @return `cr` An R x (R - F) orthogonal complement to \delta_r (Browne, 1984).
 #'
@@ -102,7 +103,7 @@ calc_mod_marginal_prob <- function(num_items, pi_matrix, base_rates) {
 #'
 #' @noRd
 calc_c_r <- function(num_items, num_item_params, pi_matrix, base_rates, l,
-                     num_attr, qmatrix, model_type) {
+                     num_attr, qmatrix, model_type, link) {
   design_matrix <- calc_design_matrix(num_item_params, qmatrix, model_type)
 
   skills_missing <- skills(base_rates, l, qmatrix)
@@ -110,7 +111,8 @@ calc_c_r <- function(num_items, num_item_params, pi_matrix, base_rates, l,
   patt <- calc_patt(qmatrix, l, skills_missing)
 
   jacobian <- calc_jacobian_matrix(num_items, num_item_params, pi_matrix,
-                                   design_matrix, patt, base_rates, l, num_attr)
+                                   design_matrix, patt, base_rates, l, num_attr,
+                                   link)
 
   jacobian <- qr.Q(qr(jacobian),
                    complete = TRUE)[, (ncol(jacobian) +
@@ -139,25 +141,45 @@ calc_c_r <- function(num_items, num_item_params, pi_matrix, base_rates, l,
 #' indicating the model estimated base rates of mastery
 #' @param l An integer containing the number of latent classes
 #' @param num_attr An integer containing the number of assessed attributes
+#' @param link A string containing the type of link function (e.g., 'logit')
 #'
 #' @return `jacobian` A matrix containing the Jacobian matrix.
 #'
 #' @noRd
 calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
-                                 design_matrix, patt, base_rates, l, num_attr) {
+                                 design_matrix, patt, base_rates, l, num_attr,
+                                 link) {
   jacobian11 <- matrix(0, nrow = num_items, ncol = sum(num_item_params))
   cumulative_parameters <- cumsum(num_item_params)
 
   for (ii in 1:num_items) {
+    # the Jacobian matrix is calculated differently depending on the link
+    # function; this describes the calculation for the logit link function
+    # which is the most complicated
+    #
     # multiply the prob of a correct response times prob of incorrect response
     # times design matrix times base rate this estimates the covariance of the
     # first-order marginal probabilities by using the design matrix, this
     # controls for parameters not estimated for certain latent classes
-    jacobian11[ii,
-               (cumulative_parameters[ii] -
-                  num_item_params[ii] + 1):cumulative_parameters[ii]] <-
-      colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
-              design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
+    if(link == "logit") {
+      jacobian11[ii,
+                 (cumulative_parameters[ii] -
+                    num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+        colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
+                  design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
+    } else if(link == "log") {
+      jacobian11[ii,
+                 (cumulative_parameters[ii] -
+                    num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+        colSums(pi_matrix[ii, ] *
+                  design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
+    } else if(link == "identity") {
+      jacobian11[ii,
+                 (cumulative_parameters[ii] -
+                    num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+        colSums(design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
+    }
+
   }
 
   # for jacobian12, we're calculating the difference in the prob of a correct
@@ -176,6 +198,10 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
   row_iterator <- 1
 
   for (jj in 1:num_items) {
+    # the Jacobian matrix is calculated differently depending on the link
+    # function; this describes the calculation for the logit link function
+    # which is the most complicated
+    #
     # multiply the prob of a correct response times prob of incorrect response
     # times design matrix times base rate times the prob correct for a second
     # item this estimates the covariance of the second-order marginal
@@ -183,19 +209,48 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
     # estimated for certain latent classes
     for (ii in 1:num_items) {
       if (jj < ii) {
-        jacobian21[row_iterator,
-                   (cumulative_parameters[jj] -
-                      num_item_params[jj] + 1):cumulative_parameters[jj]] <-
-          colSums(pi_matrix[jj, ] * (1 - pi_matrix[jj, ]) *
-                    design_matrix[[jj]][patt[jj, ], ] * as.vector(base_rates) *
-                    pi_matrix[ii, ])
+        if(link == "logit") {
+          jacobian21[row_iterator,
+                     (cumulative_parameters[jj] -
+                        num_item_params[jj] + 1):cumulative_parameters[jj]] <-
+            colSums(pi_matrix[jj, ] * (1 - pi_matrix[jj, ]) *
+                      design_matrix[[jj]][patt[jj, ], ] * as.vector(base_rates) *
+                      pi_matrix[ii, ])
 
-        jacobian21[row_iterator,
-                   (cumulative_parameters[ii] -
-                      num_item_params[ii] + 1):cumulative_parameters[ii]] <-
-          colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
-                    design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates) *
-                    pi_matrix[jj, ])
+          jacobian21[row_iterator,
+                     (cumulative_parameters[ii] -
+                        num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+            colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
+                      design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates) *
+                      pi_matrix[jj, ])
+        } else if(link == "log") {
+          jacobian21[row_iterator,
+                     (cumulative_parameters[jj] -
+                        num_item_params[jj] + 1):cumulative_parameters[jj]] <-
+            colSums(pi_matrix[jj, ] *
+                      design_matrix[[jj]][patt[jj, ], ] * as.vector(base_rates) *
+                      pi_matrix[ii, ])
+
+          jacobian21[row_iterator,
+                     (cumulative_parameters[ii] -
+                        num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+            colSums(pi_matrix[ii, ] *
+                      design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates) *
+                      pi_matrix[jj, ])
+        } else if(link == "identity") {
+          jacobian21[row_iterator,
+                     (cumulative_parameters[jj] -
+                        num_item_params[jj] + 1):cumulative_parameters[jj]] <-
+            colSums(design_matrix[[jj]][patt[jj, ], ] * as.vector(base_rates) *
+                      pi_matrix[ii, ])
+
+          jacobian21[row_iterator,
+                     (cumulative_parameters[ii] -
+                        num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+            colSums(design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates) *
+                      pi_matrix[jj, ])
+        }
+
 
         row_iterator <- row_iterator + 1
       }
