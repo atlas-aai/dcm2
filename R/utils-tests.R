@@ -70,8 +70,8 @@ generate_data <- function(sample_size, test_length, prevalence,
     expand.grid() %>%
     dplyr::mutate(total = rowSums(.)) %>%
     dplyr::select("total", dplyr::everything()) %>%
-    dplyr::arrange_at(dplyr::vars("total",
-                                  dplyr::desc(-dplyr::one_of("total")))) %>%
+    dplyr::arrange("total",
+                   dplyr::vars(dplyr::desc(-dplyr::one_of("total")))) %>%
     dplyr::filter(dplyr::between(.data$total, 1, 2)) %>%
     dplyr::mutate(prob = dplyr::case_when(.data$total == 1 ~ 0.500,
                                           TRUE ~ 0.5 / (attributes - 1)))

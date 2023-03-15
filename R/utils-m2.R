@@ -390,8 +390,8 @@ possible_parameters <- function(natt, model_type) {
       tibble::as_tibble() %>%
       dplyr::mutate(total = rowSums(.)) %>%
       dplyr::select(dplyr::everything(), "total") %>%
-      dplyr::arrange_at(dplyr::vars("total",
-                                    dplyr::desc(-dplyr::one_of("total")))) %>%
+      dplyr::arrange("total",
+                     dplyr::vars(dplyr::desc(-dplyr::one_of("total")))) %>%
       dplyr::select(-"total") %>%
       as.matrix() %>%
       unname()
@@ -686,8 +686,8 @@ as_binary <- function(x) {
     tibble::as_tibble() %>%
     dplyr::mutate(total = rowSums(.)) %>%
     dplyr::select(dplyr::everything(), "total") %>%
-    dplyr::arrange_at(dplyr::vars("total",
-                                  dplyr::desc(-dplyr::one_of("total")))) %>%
+    dplyr::arrange("total",
+                   dplyr::vars(dplyr::desc(-dplyr::one_of("total")))) %>%
     dplyr::select(-"total") %>%
     as.matrix() %>%
     unname()
