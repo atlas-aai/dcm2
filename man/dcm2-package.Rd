@@ -6,7 +6,7 @@
 \alias{dcm2-package}
 \title{dcm2: A package for the estimating the M2 statistic for DCMs}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+A collection of functions for calculating the M2 model fit statistic for diagnostic classification models as described by Liu et al. (2016) \doi{10.3102/1076998615621293}. These functions provide multiple sources of information for model fit according to the M2 statistic, including the M2 statistic, the *p* value for that M2 statistic, and the Root Mean Square Error of Approximation based on the M2 statistic.
 }
 \seealso{
 Useful links:
