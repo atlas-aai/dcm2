@@ -18,7 +18,7 @@
 #' @references Liu, Y., Tian, W., & Xin, T. (2016). An application of
 #'    \eqn{M_2}{M2} statistic to evaluate the fit of cognitive diagnostic
 #'    models. *Journal of Educational and Behavioral Statistics, 41*, 3-26.
-#'    \url{https://doi.org/10.3102/1076998615621293}
+#'    \doi{10.3102/1076998615621293}
 #' @export
 m2_fit <- function(model, ci = 0.9, ...) {
   UseMethod("m2_fit")
