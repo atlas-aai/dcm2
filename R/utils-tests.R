@@ -64,14 +64,15 @@ generate_data <- function(sample_size, test_length, prevalence,
                              bk1 = bk1) %>%
     tibble::rowid_to_column(var = "resp_id")
 
+  attr_names <- as.vector(glue::glue("dplyr::desc(att_{1:attributes})"))
+
   # generate Q-matrix -----
   all_combo <- rep(list(c(0L, 1L)), attributes) %>%
     rlang::set_names(glue::glue("att_{seq_len(attributes)}")) %>%
     expand.grid() %>%
     dplyr::mutate(total = rowSums(.)) %>%
     dplyr::select("total", dplyr::everything()) %>%
-    dplyr::arrange("total",
-                   dplyr::vars(dplyr::desc(-dplyr::one_of("total")))) %>%
+    dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) %>%
     dplyr::filter(dplyr::between(.data$total, 1, 2)) %>%
     dplyr::mutate(prob = dplyr::case_when(.data$total == 1 ~ 0.500,
                                           TRUE ~ 0.5 / (attributes - 1)))

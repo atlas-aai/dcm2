@@ -383,6 +383,8 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
 #'
 #' @noRd
 possible_parameters <- function(natt, model_type) {
+  attr_names <- as.vector(glue::glue("dplyr::desc(att_{1:natt})"))
+
   if (model_type %in% c("LCDM", "ACDM", "LLM", "RRUM")) {
     profiles <- rep(list(c(0L, 1L)), natt) %>%
       purrr::set_names(glue::glue("att_{seq_len(natt)}")) %>%
@@ -390,8 +392,7 @@ possible_parameters <- function(natt, model_type) {
       tibble::as_tibble() %>%
       dplyr::mutate(total = rowSums(.)) %>%
       dplyr::select(dplyr::everything(), "total") %>%
-      dplyr::arrange("total",
-                     dplyr::vars(dplyr::desc(-dplyr::one_of("total")))) %>%
+      dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) %>%
       dplyr::select(-"total") %>%
       as.matrix() %>%
       unname()
@@ -680,14 +681,16 @@ only_if <- function(condition) {
 #' as_binary(3)
 #' as_binary(4)
 as_binary <- function(x) {
+  attr_names <- as.vector(glue::glue("dplyr::desc(att_{1:x})"))
+
   profiles <- rep(list(c(0L, 1L)), x) %>%
     purrr::set_names(glue::glue("att_{seq_len(x)}")) %>%
     expand.grid() %>%
     tibble::as_tibble() %>%
     dplyr::mutate(total = rowSums(.)) %>%
     dplyr::select(dplyr::everything(), "total") %>%
-    dplyr::arrange("total",
-                   dplyr::vars(dplyr::desc(-dplyr::one_of("total")))) %>%
+
+    dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) %>%
     dplyr::select(-"total") %>%
     as.matrix() %>%
     unname()
