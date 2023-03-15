@@ -103,7 +103,7 @@ generate_data <- function(sample_size, test_length, prevalence,
     needed_params <-
       modelr::model_matrix(q_matrix, stats::as.formula(paste0("~ .^", 2))) %>%
       tibble::rowid_to_column(var = "item_id") %>%
-      dplyr::select_if(~ !all_zero(.x)) %>%
+      dplyr::select(dplyr::where(~ !all_zero(.x))) %>%
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
       dplyr::rename(intercept = ".Intercept.") %>%
@@ -113,7 +113,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       modelr::model_matrix(q_matrix, stats::as.formula(paste0("~ .^",
                                                               attributes))) %>%
       tibble::rowid_to_column(var = "item_id") %>%
-      dplyr::select_if(~ !all_zero(.x)) %>%
+      dplyr::select(dplyr::where(~ !all_zero(.x))) %>%
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
       dplyr::rename(intercept = ".Intercept.") %>%
@@ -181,7 +181,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       dplyr::select(-"resp_id") %>%
       modelr::model_matrix(stats::as.formula(paste0("~ .^", 2))) %>%
       tibble::rowid_to_column(var = "resp_id") %>%
-      dplyr::select_if(~ !all_zero(.x)) %>%
+      dplyr::select(dplyr::where(~ !all_zero(.x))) %>%
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
       dplyr::rename(intercept = ".Intercept.") %>%
@@ -210,7 +210,7 @@ generate_data <- function(sample_size, test_length, prevalence,
       dplyr::select(-"resp_id") %>%
       modelr::model_matrix(stats::as.formula(paste0("~ .^", attributes))) %>%
       tibble::rowid_to_column(var = "resp_id") %>%
-      dplyr::select_if(~ !all_zero(.x)) %>%
+      dplyr::select(dplyr::where(~ !all_zero(.x))) %>%
       rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                                 quiet = TRUE)) %>%
       dplyr::rename(intercept = ".Intercept.") %>%
