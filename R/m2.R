@@ -56,7 +56,7 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
                                                          base_rates)
 
   cr <- calc_c_r(num_items, num_item_params, pi_matrix, base_rates, l, num_attr,
-                 qmatrix, model_type)
+                 qmatrix, model_type, link)
 
   m2_stat <- n * (
     (t(emp_marginal_probabilities - model_marginal_probabilities) %*% cr) %*%
@@ -72,7 +72,8 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
   patt <- calc_patt(qmatrix, l, skills_missing)
 
   jacobian <- calc_jacobian_matrix(num_items, num_item_params, pi_matrix,
-                                   design_matrix, patt, base_rates, l, num_attr)
+                                   design_matrix, patt, base_rates, l, num_attr,
+                                   link)
 
   df <- nrow(jacobian) - ncol(jacobian)
 
