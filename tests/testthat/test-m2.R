@@ -20,8 +20,7 @@ test_that("M2 for LCDM", {
                      ci = .9,
                      link = "logit", model_type = "LCDM")
 
-  expect_equal(dcm2_m2$m2, gdina_m2$M2,
-               tolerance = max(.01, floor(dcm2_m2$m2 / 100)))
+  expect_equal(dcm2_m2$m2, gdina_m2$M2, tolerance = .01)
   expect_equal(dcm2_m2$df, gdina_m2$M2.df)
   expect_equal(dcm2_m2$pval, gdina_m2$M2.pvalue, tolerance = .01)
   expect_equal(dcm2_m2$rmsea, gdina_m2$RMSEA2, tolerance = .01)
@@ -50,10 +49,9 @@ test_that("M2 works - DINA", {
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
                      ci = .9,
-                     link = "logit", model_type = "DINA")
+                     link = "identity", model_type = "DINA")
 
-  expect_equal(dcm2_m2$m2, gdina_m2$M2,
-               tolerance = max(.01, floor(dcm2_m2$m2 / 100)))
+  expect_equal(dcm2_m2$m2, gdina_m2$M2, tolerance = .01)
   expect_equal(dcm2_m2$df, gdina_m2$M2.df)
   expect_equal(dcm2_m2$pval, gdina_m2$M2.pvalue, tolerance = .01)
   expect_equal(dcm2_m2$rmsea, gdina_m2$RMSEA2, tolerance = .01)
@@ -82,10 +80,9 @@ test_that("M2 works - DINO", {
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
                      ci = .9,
-                     link = "logit", model_type = "DINO")
+                     link = "identity", model_type = "DINO")
 
-  expect_equal(dcm2_m2$m2, gdina_m2$M2,
-               tolerance = max(.01, floor(dcm2_m2$m2 / 100)))
+  expect_equal(dcm2_m2$m2, gdina_m2$M2, tolerance = .01)
   expect_equal(dcm2_m2$df, gdina_m2$M2.df)
   expect_equal(dcm2_m2$pval, gdina_m2$M2.pvalue, tolerance = .01)
   expect_equal(dcm2_m2$rmsea, gdina_m2$RMSEA2, tolerance = .01)
@@ -114,10 +111,9 @@ test_that("M2 works - ACDM", {
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
                      ci = .9,
-                     link = "logit", model_type = "ACDM")
+                     link = "identity", model_type = "ACDM")
 
-  expect_equal(dcm2_m2$m2, gdina_m2$M2,
-               tolerance = max(.01, floor(dcm2_m2$m2 / 100)))
+  expect_equal(dcm2_m2$m2, gdina_m2$M2, tolerance = .01)
   expect_equal(dcm2_m2$df, gdina_m2$M2.df)
   expect_equal(dcm2_m2$pval, gdina_m2$M2.pvalue, tolerance = .01)
   expect_equal(dcm2_m2$rmsea, gdina_m2$RMSEA2, tolerance = .01)
@@ -148,8 +144,7 @@ test_that("M2 works - LLM", {
                      ci = .9,
                      link = "logit", model_type = "LLM")
 
-  expect_equal(dcm2_m2$m2, gdina_m2$M2,
-               tolerance = max(.01, floor(dcm2_m2$m2 / 100)))
+  expect_equal(dcm2_m2$m2, gdina_m2$M2, tolerance = .01)
   expect_equal(dcm2_m2$df, gdina_m2$M2.df)
   expect_equal(dcm2_m2$pval, gdina_m2$M2.pvalue, tolerance = .01)
   expect_equal(dcm2_m2$rmsea, gdina_m2$RMSEA2, tolerance = .01)
@@ -178,10 +173,9 @@ test_that("M2 works - RRUM", {
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
                      ci = .9,
-                     link = "logit", model_type = "RRUM")
+                     link = "log", model_type = "RRUM")
 
-  expect_equal(dcm2_m2$m2, gdina_m2$M2,
-               tolerance = max(.01, floor(dcm2_m2$m2 / 100)))
+  expect_equal(dcm2_m2$m2, gdina_m2$M2, tolerance = .01)
   expect_equal(dcm2_m2$df, gdina_m2$M2.df)
   expect_equal(dcm2_m2$pval, gdina_m2$M2.pvalue, tolerance = .01)
   expect_equal(dcm2_m2$rmsea, gdina_m2$RMSEA2, tolerance = .01)
@@ -210,10 +204,9 @@ test_that("M2 works - BUGDINO", {
                      pi_matrix = pi_matrix,
                      qmatrix = data.frame(data$q_matrix),
                      ci = .9,
-                     link = "logit", model_type = "BUGDINO")
+                     link = "identity", model_type = "BUGDINO")
 
-  expect_equal(dcm2_m2$m2, gdina_m2$M2,
-               tolerance = max(.01, floor(dcm2_m2$m2 / 100)))
+  expect_equal(dcm2_m2$m2, gdina_m2$M2, tolerance = .01)
   expect_equal(dcm2_m2$df, gdina_m2$M2.df)
   expect_equal(dcm2_m2$pval, gdina_m2$M2.pvalue, tolerance = .01)
   expect_equal(dcm2_m2$rmsea, gdina_m2$RMSEA2, tolerance = .01)
