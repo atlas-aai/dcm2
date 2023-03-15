@@ -4,7 +4,7 @@ prevalence <- 0.5
 discrimination <- 3
 association <- 0.5
 attributes <- 2
-set.seed(1106)
+set.seed(1234)
 
 data <- generate_data(sample_size = sample_size,
                       test_length = test_length,
