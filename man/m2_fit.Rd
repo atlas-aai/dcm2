@@ -28,6 +28,38 @@ A data frame containing:
 \description{
 Estimate the M2 statistic as described by Liu et al. (2016).
 }
+\examples{
+sample_size <- 1000
+test_length <- 4
+prevalence <- 0.5
+discrimination <- 3
+association <- 0.5
+attributes <- 2
+set.seed(1234)
+
+data <- dcm2:::generate_data(sample_size = sample_size,
+                             test_length = test_length,
+                             prevalence = prevalence,
+                             discrimination = discrimination,
+                             association = association,
+                             attributes = attributes)
+possible_prof <- dcm2:::as_binary(attributes)
+
+data$data <- data$data \%>\%
+               dplyr::ungroup()
+
+fit_dat <- data$data \%>\%
+             tidyr::pivot_wider(names_from = "item_id",
+                                values_from = "score") \%>\%
+             dplyr::select(-"resp_id") \%>\%
+             as.matrix() \%>\%
+             unname()
+gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                          Q = data.frame(data$q_matrix),
+                          model = "logitGDINA",
+                          control = list(conv.type = "neg2LL")))
+m2_fit(gdina_mod, ci = 0.9)
+}
 \references{
 Liu, Y., Tian, W., & Xin, T. (2016). An application of
 \eqn{M_2}{M2} statistic to evaluate the fit of cognitive diagnostic

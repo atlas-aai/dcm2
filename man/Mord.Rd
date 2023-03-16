@@ -16,6 +16,13 @@ Mord(item_no, LCprob, prior)
 \description{
 Calculate the Mord statistic
 }
+\examples{
+ pi_matrix <- matrix(c(.3, .8, .2, .7, .15, .77, .24, .90, .30, .65),
+                     nrow = 5, ncol = 2, byrow = TRUE)
+ base_rates <- c(.5, .5)
+ partitioned_cov_mat <- Mord(c(1:5), pi_matrix, base_rates)
+ Mord(c(1:5), pi_matrix, base_rates)
+}
 \author{
 Wenchao Ma, https://github.com/Wenchao-Ma/GDINA
 }
