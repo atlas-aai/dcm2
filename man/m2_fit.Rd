@@ -29,8 +29,8 @@ A data frame containing:
 Estimate the M2 statistic as described by Liu et al. (2016).
 }
 \examples{
-sample_size <- 1000
-test_length <- 4
+sample_size <- 100
+test_length <- 3
 prevalence <- 0.5
 discrimination <- 3
 association <- 0.5
@@ -57,7 +57,7 @@ fit_dat <- data$data \%>\%
 gdina_mod <- GDINA::GDINA(dat = fit_dat,
                           Q = data.frame(data$q_matrix),
                           model = "logitGDINA",
-                          control = list(conv.type = "neg2LL")))
+                          control = list(conv.type = "neg2LL"))
 m2_fit(gdina_mod, ci = 0.9)
 }
 \references{
