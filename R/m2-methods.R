@@ -20,6 +20,15 @@
 #'    models. *Journal of Educational and Behavioral Statistics, 41*, 3-26.
 #'    \doi{10.3102/1076998615621293}
 #' @export
+#'
+#' @example
+#' \dontrun{
+#' gdina_mod <- GDINA::GDINA(dat = fit_dat,
+#'                           Q = data.frame(data$q_matrix),
+#'                           model = "logitGDINA",
+#'                           control = list(conv.type = "neg2LL")))
+#' m2_fit(gdina_mod, ci = 0.9)
+#' }
 m2_fit <- function(model, ci = 0.9, ...) {
   UseMethod("m2_fit")
 }
