@@ -6,7 +6,7 @@ test_that("methods work", {
                               control = list(conv.type = "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
-  dcm2_m2 <- m2_fit(gdina_mod, ci = 0.9)
+  dcm2_m2 <- fit_m2(gdina_mod, ci = 0.9)
 
   expect_equal(gdina_m2$M2, dcm2_m2$m2, tolerance = 0.01)
   expect_equal(gdina_m2$M2.df, dcm2_m2$df)

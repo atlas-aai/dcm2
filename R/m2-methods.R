@@ -20,12 +20,12 @@
 #'    models. *Journal of Educational and Behavioral Statistics, 41*, 3-26.
 #'    \doi{10.3102/1076998615621293}
 #' @export
-m2_fit <- function(model, ci = 0.9, ...) {
-  UseMethod("m2_fit")
+fit_m2 <- function(model, ci = 0.9, ...) {
+  UseMethod("fit_m2")
 }
 
 #' @export
-m2_fit.GDINA <- function(model, ci = 0.9, ...) {
+fit_m2.GDINA <- function(model, ci = 0.9, ...) {
   mod_type <- unique(model$model)
   if (mod_type == "LOGITGDINA") mod_type <- "LCDM"
 
