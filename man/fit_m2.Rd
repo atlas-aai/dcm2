@@ -58,7 +58,7 @@ gdina_mod <- GDINA::GDINA(dat = fit_dat,
                           Q = data.frame(data$q_matrix),
                           model = "logitGDINA",
                           control = list(conv.type = "neg2LL"))
-m2_fit(gdina_mod, ci = 0.9)
+fit_m2(gdina_mod, ci = 0.9)
 }
 \references{
 Liu, Y., Tian, W., & Xin, T. (2016). An application of
