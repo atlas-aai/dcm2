@@ -21,7 +21,7 @@
 #'    \doi{10.3102/1076998615621293}
 #' @export
 #'
-#' @example
+#' @examples
 #' sample_size <- 1000
 #' test_length <- 4
 #' prevalence <- 0.5

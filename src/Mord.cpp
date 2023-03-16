@@ -12,7 +12,7 @@ using namespace Rcpp;
 //' @author Wenchao Ma, https://github.com/Wenchao-Ma/GDINA
 //' @export
 //'
-//' @example
+//' @examples
 //'  pi_matrix <- matrix(c(.3, .8, .2, .7, .15, .77, .24, .90, .30, .65),
 //'                      nrow = 5, ncol = 2, byrow = TRUE)
 //'  base_rates <- c(.5, .5)
