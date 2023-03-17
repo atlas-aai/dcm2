@@ -13,6 +13,8 @@
 #' that was estimated.
 #'
 #' @export
+#'
+#' @examples
 #' sample_size <- 75
 #' test_length <- 3
 #' prevalence <- 0.5
