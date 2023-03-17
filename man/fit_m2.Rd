@@ -29,7 +29,7 @@ A data frame containing:
 Estimate the M2 statistic as described by Liu et al. (2016).
 }
 \examples{
-sample_size <- 100
+sample_size <- 75
 test_length <- 3
 prevalence <- 0.5
 discrimination <- 3
