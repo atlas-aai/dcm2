@@ -69,7 +69,8 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
     rep(2, nrow(qmatrix))
   } else if (model_type %in% c("LCDM", "GDINA")) {
     qmatrix %>%
-      modelr::model_matrix(stats::as.formula(paste0("~ .^", ncol(.)))) %>%
+      modelr::model_matrix(stats::as.formula(paste0("~ .^",
+                                                    max(ncol(.), 2)))) %>%
       dplyr::mutate(total_params = rowSums(.)) %>%
       dplyr::pull("total_params")
   } else if (model_type %in% c("ACDM", "LLM", "RRUM")) {
