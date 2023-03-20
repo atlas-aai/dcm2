@@ -36,7 +36,7 @@
 #'                              discrimination = discrimination,
 #'                              association = association,
 #'                              attributes = attributes)
-#' possible_prof <- dcm2:::as_binary(attributes)
+#' possible_prof <- dcm2::as_binary(attributes)
 #'
 #' data$data <- data$data %>%
 #'                dplyr::ungroup()
