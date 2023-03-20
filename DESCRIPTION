@@ -24,7 +24,7 @@ Description: A collection of functions for calculating the M2 model fit
     sources of information for model fit according to the M2 statistic,
     including the M2 statistic, the *p* value for that M2 statistic, and the
     Root Mean Square Error of Approximation based on the M2 statistic.
-License: GPL-3 + file LICENSE
+License: GPL-3
 URL: https://github.com/atlas-aai/dcm2
 BugReports: https://github.com/atlas-aai/dcm2/issues
 Depends:
@@ -40,9 +40,7 @@ Imports:
     rlang (>= 0.4.11),
     stringr (>= 1.4.0),
     tibble (>= 2.1.3),
-    tidyr (>= 1.1.4),
-    truncnorm (>= 1.0-8),
-    vctrs (>= 0.3.8)
+    tidyr (>= 1.1.4)
 Suggests:
     covr,
     GDINA,
