@@ -1,10 +1,9 @@
-sample_size <- 1000
-test_length <- 4
-prevalence <- 0.5
-discrimination <- 3
-association <- 0.5
-attributes <- 2
-set.seed(1234)
+sample_size = 1000
+test_length = 2
+prevalence = .5
+discrimination = 1
+association = 0
+attributes = 1
 
 resp_trait <- stats::rnorm(n = sample_size, mean = 0, sd = 1)
 bk0 <- c(association, stats::runif(n = attributes - 1L, min = 0, max = 2))
@@ -203,9 +202,9 @@ if (attributes == 1) {
     dplyr::select("resp_id", "item_id", "score")
 }
 
-sample_data <- list(resp_profiles = profiles,
-                 q_matrix = q_matrix,
-                 item_params = item_params,
-                 data = resp_data)
+data_att1 <- list(resp_profiles = profiles,
+                    q_matrix = q_matrix,
+                    item_params = item_params,
+                    data = resp_data)
 
-usethis::use_data(sample_data, overwrite = TRUE)
+usethis::use_data(data_att1, overwrite = TRUE)
