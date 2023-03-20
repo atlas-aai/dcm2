@@ -6,6 +6,9 @@
 \usage{
 lhs \%>\% rhs
 }
+\value{
+No return value, called to import pipe operator from magrittr
+}
 \description{
 See \verb{magrittr::[\\\%>\\\%][magrittr::\\\%>\\\%]} for details.
 }

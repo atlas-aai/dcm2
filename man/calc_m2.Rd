@@ -33,37 +33,32 @@ correct response by members of each latent class}
 \item{model_type}{A character containing the model type (e.g., \code{LCDM})
 that was estimated.}
 }
+\value{
+A data frame containing:
+\itemize{
+\item \code{m2}: The M2 statistic
+\item \code{df}: Degrees of freedom for the M2 statistic
+\item \code{pval}: \emph{p}-value for the M2 statistic
+\item \code{rmsea}: Root mean square error of approximation
+\item \code{ci_lower}: Lower end of \code{ci} interval for RMSEA
+\item \code{ci_upper}: Upper end of \code{ci} interval for RMSEA
+\item \code{srmsr}: Standardized root mean square residual
+}
+}
 \description{
 Calculate the M2
 }
 \examples{
-sample_size <- 75
-test_length <- 3
-prevalence <- 0.5
-discrimination <- 3
-association <- 0.5
-attributes <- 2
-set.seed(1234)
+possible_prof <- dcm2::as_binary(ncol(sample_data$q_matrix))
 
-data <- dcm2:::generate_data(sample_size = sample_size,
-                             test_length = test_length,
-                             prevalence = prevalence,
-                             discrimination = discrimination,
-                             association = association,
-                             attributes = attributes)
-possible_prof <- dcm2:::as_binary(attributes)
-
-data$data <- data$data \%>\%
-               dplyr::ungroup()
-
-fit_dat <- data$data \%>\%
+fit_dat <- sample_data$data \%>\%
              tidyr::pivot_wider(names_from = "item_id",
                                 values_from = "score") \%>\%
              dplyr::select(-"resp_id") \%>\%
              as.matrix() \%>\%
              unname()
 gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                          Q = data.frame(data$q_matrix),
+                          Q = data.frame(sample_data$q_matrix),
                           model = "logitGDINA",
                           control = list(conv.type = "neg2LL"))
 struc_params <- gdina_mod$struc.parm
@@ -71,7 +66,7 @@ pi_matrix <- gdina_mod$LC.prob \%>\%
                as.matrix() \%>\%
                unname()
 calc_m2(data = fit_dat, struc_params, pi_matrix,
-        qmatrix = data.frame(data$q_matrix), ci = 0.9, link = "logit",
+        qmatrix = data.frame(sample_data$q_matrix), ci = 0.9, link = "logit",
         model_type = "LCDM")
 
 }

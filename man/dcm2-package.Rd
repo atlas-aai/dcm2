@@ -24,5 +24,10 @@ Authors:
   \item W. Jake Thompson \email{wjakethompson@gmail.com} (\href{https://orcid.org/0000-0001-7339-0300}{ORCID})
 }
 
+Other contributors:
+\itemize{
+  \item Wenchao Ma \email{wenchao.ma@ua.edu} (Author of Mord.cpp) [contributor]
+}
+
 }
 \keyword{internal}

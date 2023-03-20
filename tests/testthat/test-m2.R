@@ -1,7 +1,7 @@
 test_that("M2 for LCDM", {
   out <- utils::capture.output(
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(data$q_matrix),
+                              Q = data.frame(sample_data$q_matrix),
                               model = "logitGDINA",
                               control = list(conv.type = "neg2LL")))
 
@@ -16,7 +16,7 @@ test_that("M2 for LCDM", {
 
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
-                     qmatrix = data.frame(data$q_matrix),
+                     qmatrix = data.frame(sample_data$q_matrix),
                      ci = .9,
                      link = "logit", model_type = "LCDM")
 
@@ -32,7 +32,7 @@ test_that("M2 for LCDM", {
 test_that("M2 works - DINA", {
   out <- utils::capture.output(
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(data$q_matrix),
+                              Q = data.frame(sample_data$q_matrix),
                               model = "DINA",
                               control = list(conv.type = "neg2LL")))
 
@@ -47,7 +47,7 @@ test_that("M2 works - DINA", {
 
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
-                     qmatrix = data.frame(data$q_matrix),
+                     qmatrix = data.frame(sample_data$q_matrix),
                      ci = .9,
                      link = "identity", model_type = "DINA")
 
@@ -63,7 +63,7 @@ test_that("M2 works - DINA", {
 test_that("M2 works - DINO", {
   out <- utils::capture.output(
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(data$q_matrix),
+                              Q = data.frame(sample_data$q_matrix),
                               model = "DINO",
                               control = list(conv.type = "neg2LL")))
 
@@ -78,7 +78,7 @@ test_that("M2 works - DINO", {
 
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
-                     qmatrix = data.frame(data$q_matrix),
+                     qmatrix = data.frame(sample_data$q_matrix),
                      ci = .9,
                      link = "identity", model_type = "DINO")
 
@@ -94,7 +94,7 @@ test_that("M2 works - DINO", {
 test_that("M2 works - ACDM", {
   out <- utils::capture.output(
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(data$q_matrix),
+                              Q = data.frame(sample_data$q_matrix),
                               model = "ACDM",
                               control = list(conv.type = "neg2LL")))
 
@@ -109,7 +109,7 @@ test_that("M2 works - ACDM", {
 
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
-                     qmatrix = data.frame(data$q_matrix),
+                     qmatrix = data.frame(sample_data$q_matrix),
                      ci = .9,
                      link = "identity", model_type = "ACDM")
 
@@ -125,7 +125,7 @@ test_that("M2 works - ACDM", {
 test_that("M2 works - LLM", {
   out <- utils::capture.output(
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(data$q_matrix),
+                              Q = data.frame(sample_data$q_matrix),
                               model = "LLM",
                               control = list(conv.type = "neg2LL")))
 
@@ -140,7 +140,7 @@ test_that("M2 works - LLM", {
 
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
-                     qmatrix = data.frame(data$q_matrix),
+                     qmatrix = data.frame(sample_data$q_matrix),
                      ci = .9,
                      link = "logit", model_type = "LLM")
 
@@ -156,7 +156,7 @@ test_that("M2 works - LLM", {
 test_that("M2 works - RRUM", {
   out <- utils::capture.output(
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(data$q_matrix),
+                              Q = data.frame(sample_data$q_matrix),
                               model = "RRUM",
                               control = list(conv.type = "neg2LL")))
 
@@ -171,7 +171,7 @@ test_that("M2 works - RRUM", {
 
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
-                     qmatrix = data.frame(data$q_matrix),
+                     qmatrix = data.frame(sample_data$q_matrix),
                      ci = .9,
                      link = "log", model_type = "RRUM")
 
@@ -187,7 +187,7 @@ test_that("M2 works - RRUM", {
 test_that("M2 works - BUGDINO", {
   out <- utils::capture.output(
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(data$q_matrix),
+                              Q = data.frame(sample_data$q_matrix),
                               model = "BUGDINO",
                               control = list(conv.type = "neg2LL")))
 
@@ -202,7 +202,7 @@ test_that("M2 works - BUGDINO", {
 
   dcm2_m2 <- calc_m2(data = fit_dat, struc_params = struc_params,
                      pi_matrix = pi_matrix,
-                     qmatrix = data.frame(data$q_matrix),
+                     qmatrix = data.frame(sample_data$q_matrix),
                      ci = .9,
                      link = "identity", model_type = "BUGDINO")
 
