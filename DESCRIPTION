@@ -1,6 +1,6 @@
 Package: dcm2
 Type: Package
-Title: Calculating the M2 Model Fit Statistic for DCMs
+Title: Calculating the M2 Model Fit Statistic for Diagnostic Classification Models
 Version: 1.0.0
 Authors@R:
     c(person(given = "Jeffrey",
