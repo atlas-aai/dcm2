@@ -679,7 +679,7 @@ only_if <- function(condition) {
 #' @param x The number of attributes
 #'
 #' @return A `2 ^ x` by `x` matrix
-#' @noRd
+#' @export
 #'
 #' @examples
 #' as_binary(3)
