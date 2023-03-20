@@ -103,34 +103,44 @@ effects <- needed_params %>%
                                     function(x, dis, att) {
                                       if (nrow(x) == 1) {
                                         effect <- x %>%
-                                          dplyr::mutate(value = stats::rnorm(1, mean = dis,
-                                                                             sd = 0.25))
+                                          dplyr::mutate(value =
+                                                          stats::rnorm(1,
+                                                                       mean =
+                                                                         dis,
+                                                                       sd =
+                                                                         0.25))
                                       } else {
                                         effect <- x %>%
                                           dplyr::mutate(
                                             mef = dplyr::case_when(
-                                              !stringr::str_detect(.data$param, "__") ~
-                                                truncnorm::rtruncnorm(dplyr::n(), a = 0,
-                                                                      mean = dis / 1.5,
-                                                                      sd = sqrt(1 / 36))
+                                              !stringr::str_detect(.data$param,
+                                                                   "__") ~
+                                                truncnorm::rtruncnorm(
+                                                  dplyr::n(), a = 0,
+                                                  mean = dis / 1.5,
+                                                  sd = sqrt(1 / 36))
                                             ),
                                             int = dplyr::case_when(
-                                              stringr::str_detect(.data$param, "__") ~
-                                                truncnorm::rtruncnorm(dplyr::n(),
-                                                                      a = -1 *
-                                                                        min(.data$mef,
-                                                                            na.rm =  TRUE),
-                                                                      mean = dis / 1.5,
-                                                                      sd = sqrt(1 / 36))
+                                              stringr::str_detect(.data$param,
+                                                                  "__") ~
+                                                truncnorm::rtruncnorm(
+                                                  dplyr::n(),
+                                                  a = -1 * min(.data$mef,
+                                                               na.rm =  TRUE),
+                                                  mean = dis / 1.5,
+                                                  sd = sqrt(1 / 36))
                                             ),
-                                            value = dplyr::coalesce(.data$mef, .data$int)
+                                            value = dplyr::coalesce(.data$mef,
+                                                                    .data$int)
                                           ) %>%
-                                          dplyr::select("param", "valid", "value")
+                                          dplyr::select("param", "valid",
+                                                        "value")
                                       }
                                       ret_frame <- effect %>%
                                         dplyr::select("param", "value") %>%
                                         tidyr::pivot_wider(names_from = "param",
-                                                           values_from = "value")
+                                                           values_from =
+                                                             "value")
                                       return(ret_frame)
                                     },
                                     dis = discrimination, att = attributes)) %>%
@@ -150,7 +160,7 @@ if (attributes == 1) {
     rlang::set_names(nm = vctrs::vec_as_names(names(.), repair = "universal",
                                               quiet = TRUE)) %>%
     dplyr::rename(intercept = ".Intercept.") %>%
-    dplyr::rename_with(~ stringr::str_replace_all(.,stringr::fixed("."),
+    dplyr::rename_with(~ stringr::str_replace_all(., stringr::fixed("."),
                                                   "__")) %>%
     tidyr::pivot_longer(cols = -"resp_id", names_to = "param",
                         values_to = "mastery") %>%
@@ -181,7 +191,7 @@ if (attributes == 1) {
                                               quiet = TRUE)) %>%
     dplyr::rename(intercept = ".Intercept.") %>%
     dplyr::rename_with(~ stringr::str_replace_all(., stringr::fixed("."),
-                                                  "__"))%>%
+                                                  "__")) %>%
     tidyr::pivot_longer(cols = -"resp_id", names_to = "param",
                         values_to = "mastery") %>%
     dplyr::left_join(item_params %>%
