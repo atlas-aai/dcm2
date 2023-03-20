@@ -91,7 +91,7 @@ check_pi_matrix <- function(pi_matrix, qmatrix) {
 
 check_qmatrix <- function(qmatrix, pi_matrix) {
   if (!is.data.frame(qmatrix)) {
-    stop("`pi_matrix` must be a data frame.",
+    stop("`qmatrix` must be a data frame.",
          call. = FALSE)
   }
 
