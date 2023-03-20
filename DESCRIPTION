@@ -19,7 +19,7 @@ Description: A collection of functions for calculating the M2 model fit
     sources of information for model fit according to the M2 statistic,
     including the M2 statistic, the *p* value for that M2 statistic, and the
     Root Mean Square Error of Approximation based on the M2 statistic.
-License: MIT + file LICENSE
+License: GPL-3
 URL: https://github.com/atlas-aai/dcm2
 BugReports: https://github.com/atlas-aai/dcm2/issues
 Depends:
