@@ -33,6 +33,18 @@ correct response by members of each latent class}
 \item{model_type}{A character containing the model type (e.g., \code{LCDM})
 that was estimated.}
 }
+\value{
+A data frame containing:
+\itemize{
+\item \code{m2}: The M2 statistic
+\item \code{df}: Degrees of freedom for the M2 statistic
+\item \code{pval}: \emph{p}-value for the M2 statistic
+\item \code{rmsea}: Root mean square error of approximation
+\item \code{ci_lower}: Lower end of \code{ci} interval for RMSEA
+\item \code{ci_upper}: Upper end of \code{ci} interval for RMSEA
+\item \code{srmsr}: Standardized root mean square residual
+}
+}
 \description{
 Calculate the M2
 }
