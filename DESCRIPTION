@@ -16,8 +16,8 @@ Authors@R:
       person(given = "Wenchao",
              family = "Ma",
              role = c("ctb"),
-             email = c("wenchao.ma@ua.edu")),
-             comment = c("Author of Mord.cpp"))
+             email = "wenchao.ma@ua.edu",
+             comment = c("Author of Mord.cpp")))
 Description: A collection of functions for calculating the M2 model fit
     statistic for diagnostic classification models as described by Liu et al.
     (2016) <DOI:10.3102/1076998615621293>. These functions provide multiple
