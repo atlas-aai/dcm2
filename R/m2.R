@@ -12,6 +12,15 @@
 #' @param model_type A character containing the model type (e.g., `LCDM`)
 #' that was estimated.
 #'
+#' @return A data frame containing:
+#' * `m2`: The M2 statistic
+#' * `df`: Degrees of freedom for the M2 statistic
+#' * `pval`: _p_-value for the M2 statistic
+#' * `rmsea`: Root mean square error of approximation
+#' * `ci_lower`: Lower end of `ci` interval for RMSEA
+#' * `ci_upper`: Upper end of `ci` interval for RMSEA
+#' * `srmsr`: Standardized root mean square residual
+#'
 #' @export
 #'
 #' @examples
