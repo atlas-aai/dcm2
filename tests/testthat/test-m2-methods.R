@@ -1,7 +1,7 @@
 test_that("methods work", {
   out <- utils::capture.output(
     gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(data$q_matrix),
+                              Q = data.frame(sample_data$q_matrix),
                               model = "logitGDINA",
                               control = list(conv.type = "neg2LL")))
 
