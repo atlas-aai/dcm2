@@ -1,15 +1,3 @@
-check_data <- function(x) {
-  if (!is.data.frame(x)) {
-    stop("`data` must be a data frame.", call. = FALSE)
-  }
-
-  if (!tibble::is_tibble(x)) {
-    tibble::as_tibble(x)
-  } else {
-    x
-  }
-}
-
 check_ci <- function(x) {
   if (length(x) != 1 || !is.numeric(x)) {
     stop("`ci` must be a length one numeric vector.",
