@@ -18,8 +18,8 @@ profiles <- purrr::map_dfr(resp_trait,
                                                                           y)))
                                              },
                                              theta = theta) %>%
-                               rlang::set_names(
-                                 glue::glue("att_{1:length(.)}")) %>%
+                               rlang::set_names(glue::glue(
+                                 "att_{1:length(.)}")) %>%
                                tibble::enframe() %>%
                                tidyr::pivot_wider(names_from = "name",
                                                   values_from = "value")
@@ -40,28 +40,29 @@ all_combo <- rep(list(c(0L, 1L)), attributes) %>%
   dplyr::filter(dplyr::between(.data$total, 1, 2)) %>%
   dplyr::mutate(prob = dplyr::case_when(.data$total == 1 ~ 0.500,
                                         TRUE ~ 0.5 / (attributes - 1)))
-q_matrix <- purrr::map_dfr(
-  seq_len(test_length),
-  function(chunk, all_combo, att) {
-    if (chunk %in% c(1, 2)) {
-      ret_chk <- diag(x = 1L, nrow = att, ncol = att) %>%
-        tibble::as_tibble(.name_repair = ~glue::glue("att_{1:att}"))
-      return(ret_chk)
-    }
+q_matrix <- purrr::map_dfr(seq_len(test_length),
+                           function(chunk, all_combo, att) {
+                             if (chunk %in% c(1, 2)) {
+                               ret_chk <- diag(x = 1L,
+                                               nrow = att, ncol = att) %>%
+                                 tibble::as_tibble(.name_repair =
+                                                     ~glue::glue("att_{1:att}"))
+                               return(ret_chk)
+                               }
 
-    ret_chk <- purrr::map_dfr(
-      glue::glue("att_{1:att}"),
-      function(var, all_combo) {
-        dplyr::filter(all_combo,
-                      !!dplyr::sym(var) == 1) %>%
-          dplyr::sample_n(size = 1, replace = FALSE,
-                          weight = .data$prob)
-      },
-      all_combo = all_combo) %>%
-      dplyr::select(dplyr::starts_with("att"))
-    return(ret_chk)
-  },
-  all_combo = all_combo, att = attributes)
+                             ret_chk <- purrr::map_dfr(
+                               glue::glue("att_{1:att}"),
+                               function(var, all_combo) {
+                                 dplyr::filter(all_combo,
+                                               !!dplyr::sym(var) == 1) %>%
+                                   dplyr::sample_n(size = 1, replace = FALSE,
+                                                   weight = .data$prob)
+                                 },
+                               all_combo = all_combo) %>%
+                               dplyr::select(dplyr::starts_with("att"))
+                             return(ret_chk)
+                           },
+                           all_combo = all_combo, att = attributes)
 
 # generate item parameters -----
 if (attributes == 1) {
