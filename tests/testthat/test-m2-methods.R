@@ -1,9 +1,11 @@
 test_that("methods work", {
-  out <- utils::capture.output(
-    gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(sample_data$q_matrix),
-                              model = "logitGDINA",
-                              control = list(conv.type = "neg2LL")))
+  out <- utils::capture.output(gdina_mod <-
+                                 GDINA::GDINA(dat = fit_dat,
+                                              Q = data.frame(
+                                                sample_data$q_matrix),
+                                              model = "logitGDINA",
+                                              control = list(conv.type =
+                                                               "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
   dcm2_m2 <- fit_m2(gdina_mod, ci = 0.9)
