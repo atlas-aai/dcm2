@@ -84,19 +84,19 @@ test_that("test check_pi_matrix", {
   q_matrix <- dcm2::sample_data$q_matrix
 
   fit_dat <- dcm2::sample_data$data %>%
-               tidyr::pivot_wider(names_from = "item_id",
-                                  values_from = "score") %>%
-               dplyr::select(-"resp_id") %>%
-               as.matrix() %>%
-               unname()
+    tidyr::pivot_wider(names_from = "item_id",
+                       values_from = "score") %>%
+    dplyr::select(-"resp_id") %>%
+    as.matrix() %>%
+    unname()
   gdina_mod <- GDINA::GDINA(dat = fit_dat,
                             Q = data.frame(sample_data$q_matrix),
                             model = "logitGDINA",
                             control = list(conv.type = "neg2LL"))
 
   pi_matrix <- gdina_mod$LC.prob %>%
-                 as.matrix() %>%
-                 unname()
+    as.matrix() %>%
+    unname()
 
   err <- rlang::catch_cnd(dcm2:::check_pi_matrix(pi_matrix %>%
                                                    as.data.frame(),

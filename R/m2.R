@@ -90,9 +90,9 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
   cr <- calc_c_r(num_items, num_item_params, pi_matrix, base_rates, l, num_attr,
                  qmatrix, model_type, link)
 
-  m2_stat <- n * (
-    (t(emp_marginal_probabilities - model_marginal_probabilities) %*% cr) %*%
-      (emp_marginal_probabilities - model_marginal_probabilities))
+  m2_stat <- n * ((t(emp_marginal_probabilities -
+                       model_marginal_probabilities) %*% cr) %*%
+                    (emp_marginal_probabilities - model_marginal_probabilities))
 
   se <- sqrt(diag(Mord(c(1:num_items), pi_matrix, base_rates)$bi) -
                c(Mord(c(1:num_items), pi_matrix, base_rates)$uni)^2)
@@ -118,8 +118,7 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
   difr <- stats::cor(data, use = "pairwise.complete.obs") -
     (Mord(c(1:num_items), pi_matrix, base_rates)$bi -
        Mord(c(1:num_items), pi_matrix, base_rates)$uni %*%
-       t(Mord(c(1:num_items), pi_matrix, base_rates)$uni)) /
-    (se %*% t(se))
+         t(Mord(c(1:num_items), pi_matrix, base_rates)$uni)) / (se %*% t(se))
   srmsr <- sqrt(sum((difr[lower.tri(difr)]) ^ 2 / (num_items * (num_items -
                                                                   1) / 2)))
 

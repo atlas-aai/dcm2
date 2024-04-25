@@ -18,8 +18,8 @@ profiles <- purrr::map_dfr(resp_trait,
                                                                           y)))
                                              },
                                              theta = theta) %>%
-                               rlang::set_names(glue::glue(
-                                 "att_{1:length(.)}")) %>%
+                               rlang::set_names(glue::glue("att_",
+                                                           "{1:length(.)}")) %>%
                                tibble::enframe() %>%
                                tidyr::pivot_wider(names_from = "name",
                                                   values_from = "value")
@@ -48,17 +48,20 @@ q_matrix <- purrr::map_dfr(seq_len(test_length),
                                  tibble::as_tibble(.name_repair =
                                                      ~glue::glue("att_{1:att}"))
                                return(ret_chk)
-                               }
+                             }
 
-                             ret_chk <- purrr::map_dfr(
-                               glue::glue("att_{1:att}"),
-                               function(var, all_combo) {
-                                 dplyr::filter(all_combo,
-                                               !!dplyr::sym(var) == 1) %>%
-                                   dplyr::sample_n(size = 1, replace = FALSE,
-                                                   weight = .data$prob)
-                                 },
-                               all_combo = all_combo) %>%
+                             gen_q <- function(var, all_combo) {
+                               dplyr::filter(all_combo,
+                                             !!dplyr::sym(var) == 1) %>%
+                                 dplyr::sample_n(size = 1, replace = FALSE,
+                                                 weight = .data$prob)
+                             }
+
+                             ret_chk <- purrr::map_dfr(glue::glue("att_",
+                                                                  "{1:att}"),
+                                                       gen_q,
+                                                       all_combo =
+                                                         all_combo) %>%
                                dplyr::select(dplyr::starts_with("att"))
                              return(ret_chk)
                            },
@@ -100,51 +103,47 @@ intercepts <- needed_params %>%
 effects <- needed_params %>%
   dplyr::filter(.data$param != "intercept") %>%
   tidyr::nest(item_params = -"item_id") %>%
-  dplyr::mutate(params = purrr::map(.data$item_params,
-                                    function(x, dis, att) {
-                                      if (nrow(x) == 1) {
-                                        effect <- x %>%
-                                          dplyr::mutate(value =
-                                                          stats::rnorm(1,
-                                                                       mean =
-                                                                         dis,
-                                                                       sd =
-                                                                         0.25))
-                                      } else {
-                                        effect <- x %>%
-                                          dplyr::mutate(
-                                            mef = dplyr::case_when(
-                                              !stringr::str_detect(.data$param,
-                                                                   "__") ~
+  dplyr::mutate(params =
+                  purrr::map(.data$item_params,
+                             function(x, dis, att) {
+                               if (nrow(x) == 1) {
+                                 effect <- x %>%
+                                   dplyr::mutate(value = stats::rnorm(1,
+                                                                      mean =
+                                                                        dis,
+                                                                      sd =
+                                                                        0.25))
+                               } else {
+                                 effect <- x %>%
+                                   dplyr::mutate(mef =
+                                                   dplyr::case_when(!stringr::str_detect(
+                                                .data$param, "__") ~
                                                 truncnorm::rtruncnorm(
-                                                  dplyr::n(), a = 0,
+                                                  dplyr::n(),
+                                                  a = 0,
                                                   mean = dis / 1.5,
-                                                  sd = sqrt(1 / 36))
-                                            ),
-                                            int = dplyr::case_when(
-                                              stringr::str_detect(.data$param,
-                                                                  "__") ~
+                                                  sd = sqrt(1 / 36))),
+                                                 int = dplyr::case_when(
+                                              stringr::str_detect(
+                                                .data$param, "__") ~
                                                 truncnorm::rtruncnorm(
                                                   dplyr::n(),
                                                   a = -1 * min(.data$mef,
                                                                na.rm =  TRUE),
                                                   mean = dis / 1.5,
-                                                  sd = sqrt(1 / 36))
-                                            ),
-                                            value = dplyr::coalesce(.data$mef,
-                                                                    .data$int)
-                                          ) %>%
-                                          dplyr::select("param", "valid",
-                                                        "value")
-                                      }
-                                      ret_frame <- effect %>%
-                                        dplyr::select("param", "value") %>%
-                                        tidyr::pivot_wider(names_from = "param",
-                                                           values_from =
-                                                             "value")
-                                      return(ret_frame)
-                                    },
-                                    dis = discrimination, att = attributes)) %>%
+                                                  sd = sqrt(1 / 36))),
+                                                 value =
+                                                dplyr::coalesce(.data$mef,
+                                                                .data$int)) %>%
+                                   dplyr::select("param", "valid", "value")
+                               }
+                               ret_frame <- effect %>%
+                                 dplyr::select("param", "value") %>%
+                                 tidyr::pivot_wider(names_from = "param",
+                                                    values_from = "value")
+                               return(ret_frame)
+                             },
+                             dis = discrimination, att = attributes)) %>%
   dplyr::select("item_id", "params") %>%
   tidyr::unnest("params")
 
@@ -215,8 +214,8 @@ if (attributes == 1) {
 }
 
 sample_data <- list(resp_profiles = profiles,
-                 q_matrix = q_matrix,
-                 item_params = item_params,
-                 data = resp_data)
+                    q_matrix = q_matrix,
+                    item_params = item_params,
+                    data = resp_data)
 
 usethis::use_data(sample_data, overwrite = TRUE)

@@ -1,9 +1,11 @@
 test_that("M2 for LCDM", {
-  out <- utils::capture.output(
-    gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(sample_data$q_matrix),
-                              model = "logitGDINA",
-                              control = list(conv.type = "neg2LL")))
+  q <- data.frame(sample_data$q_matrix)
+  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                                                         Q = q,
+                                                         model = "logitGDINA",
+                                                         control =
+                                                           list(conv.type =
+                                                                "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
@@ -30,11 +32,13 @@ test_that("M2 for LCDM", {
 })
 
 test_that("M2 works - DINA", {
-  out <- utils::capture.output(
-    gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(sample_data$q_matrix),
-                              model = "DINA",
-                              control = list(conv.type = "neg2LL")))
+  q <- data.frame(sample_data$q_matrix)
+  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                                                         Q = q,
+                                                         model = "DINA",
+                                                         control =
+                                                           list(conv.type =
+                                                                "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
@@ -61,11 +65,13 @@ test_that("M2 works - DINA", {
 })
 
 test_that("M2 works - DINO", {
-  out <- utils::capture.output(
-    gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(sample_data$q_matrix),
-                              model = "DINO",
-                              control = list(conv.type = "neg2LL")))
+  q <- data.frame(sample_data$q_matrix)
+  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                                                         Q = q,
+                                                         model = "DINO",
+                                                         control =
+                                                           list(conv.type =
+                                                                "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
@@ -92,11 +98,13 @@ test_that("M2 works - DINO", {
 })
 
 test_that("M2 works - ACDM", {
-  out <- utils::capture.output(
-    gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(sample_data$q_matrix),
-                              model = "ACDM",
-                              control = list(conv.type = "neg2LL")))
+  q <- data.frame(sample_data$q_matrix)
+  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                                                         Q = q,
+                                                         model = "ACDM",
+                                                         control =
+                                                           list(conv.type =
+                                                                "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
@@ -123,11 +131,13 @@ test_that("M2 works - ACDM", {
 })
 
 test_that("M2 works - LLM", {
-  out <- utils::capture.output(
-    gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(sample_data$q_matrix),
-                              model = "LLM",
-                              control = list(conv.type = "neg2LL")))
+  q <- data.frame(sample_data$q_matrix)
+  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                                                         Q = q,
+                                                         model = "LLM",
+                                                         control =
+                                                           list(conv.type =
+                                                                "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
@@ -154,11 +164,13 @@ test_that("M2 works - LLM", {
 })
 
 test_that("M2 works - RRUM", {
-  out <- utils::capture.output(
-    gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(sample_data$q_matrix),
-                              model = "RRUM",
-                              control = list(conv.type = "neg2LL")))
+  q <- data.frame(sample_data$q_matrix)
+  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                                                         Q = q,
+                                                         model = "RRUM",
+                                                         control =
+                                                           list(conv.type =
+                                                                "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
@@ -185,11 +197,13 @@ test_that("M2 works - RRUM", {
 })
 
 test_that("M2 works - BUGDINO", {
-  out <- utils::capture.output(
-    gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                              Q = data.frame(sample_data$q_matrix),
-                              model = "BUGDINO",
-                              control = list(conv.type = "neg2LL")))
+  q <- data.frame(sample_data$q_matrix)
+  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                                                         Q = q,
+                                                         model = "BUGDINO",
+                                                         control =
+                                                           list(conv.type =
+                                                                "neg2LL")))
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
