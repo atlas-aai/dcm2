@@ -115,12 +115,17 @@ effects <- needed_params %>%
                                                                         0.25))
                                } else {
                                  effect <- x %>%
-                                   dplyr::mutate(mef = dplyr::case_when(!stringr::str_detect(.data$param, "__") ~ truncnorm::rtruncnorm(
+                                   dplyr::mutate(mef = dplyr::case_when(
+                                     !stringr::str_detect(.data$param, "__") ~
+                                       truncnorm::rtruncnorm(
                                                   dplyr::n(),
                                                   a = 0,
                                                   mean = dis / 1.5,
                                                   sd = sqrt(1 / 36))),
-                                                 int = dplyr::case_when(stringr::str_detect(.data$param, "__") ~ truncnorm::rtruncnorm(
+                                                 int = dplyr::case_when(
+                                                   stringr::str_detect(
+                                                     .data$param, "__") ~
+                                                     truncnorm::rtruncnorm(
                                                   dplyr::n(),
                                                   a = -1 * min(.data$mef,
                                                                na.rm =  TRUE),

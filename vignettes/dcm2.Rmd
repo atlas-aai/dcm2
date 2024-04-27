@@ -5,7 +5,7 @@ bibliography: bib/references.bib
 csl: bib/apa.csl
 link-citations: true
 vignette: >
-  %\VignetteIndexEntry{Using tdcmStan}
+  %\VignetteIndexEntry{Using dcm2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -63,15 +63,15 @@ We included simulated data in the dcm2 package to demonstrate how the package ca
 We can load in this data using:
 
 ```{r load-data, echo = FALSE, eval = TRUE}
-fullData <- dcm2::sample_data
-q_matrix <- fullData$q_matrix
-data <- fullData$data
+full_data <- dcm2::sample_data
+q_matrix <- full_data$q_matrix
+data <- full_data$data
 ```
 
 ```{r load-data-print, echo = TRUE, eval = FALSE}
-fullData <- dcm2::sample_data
-q_matrix <- fullData$q_matrix
-data <- fullData$data
+full_data <- dcm2::sample_data
+q_matrix <- full_data$q_matrix
+data <- full_data$data
 ```
 
 Then, we want to estimate a DCM to fit this data.

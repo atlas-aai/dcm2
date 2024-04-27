@@ -116,9 +116,10 @@ effects <- needed_params %>%
                                } else {
                                  effect <- x %>%
                                    dplyr::mutate(mef =
-                                                   dplyr::case_when(!stringr::str_detect(
-                                                .data$param, "__") ~
-                                                truncnorm::rtruncnorm(
+                                                   dplyr::case_when(
+                                                     !stringr::str_detect(
+                                                       .data$param, "__") ~
+                                                       truncnorm::rtruncnorm(
                                                   dplyr::n(),
                                                   a = 0,
                                                   mean = dis / 1.5,
