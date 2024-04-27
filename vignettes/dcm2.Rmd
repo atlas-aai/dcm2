@@ -1,0 +1,133 @@
+---
+title: "Using dcm2"
+output: rmarkdown::html_vignette
+bibliography: bib/references.bib
+csl: bib/apa.csl
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Using tdcmStan}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(dcm2)
+library(tidyverse)
+library(GDINA)
+```
+
+Model fit is a key requirement for making inferences from psychometric models [@chen_2013].
+In order to support the inferences made from a model, the model should adequately fit the data [e.g., @ames_2015].
+For diagnostic classification models (DCMs), Rupp et al. [-@rupp_dcm] defined three methods for evaluating model fit: resampling techniques, posterior predictive model checking, and limited-information fit statistics.
+Resampling techniques are computationally intensive, meaning the time requirements may not be feasible.
+Posterior predictive model checking requires Bayesian models, which is not how many models are estimated.
+This suggests, resampling techniques and posterior predictive model checking are not practical for many settings.
+However, limited-information fit statistics do not have these drawbacks, and Rupp et al. described limited-information fit statistics as the most promising option for DCMs.
+
+Maydeu-Olivares and Joe [-@maydeu_olivares_2005] defined the $M_r$ family of limited-information fit statistics, where the fit statistic uses the *r*th order marginal proportions.
+Maydeu-Olivares and Joe [-@maydeu_olivares_2005; -@maydeu_olivares_2006] recommended using the $M_2$ limited-information fit statistic.
+Subsequent work has applied the $M_2$ statistic to DCMs [e.g., @chen_2018; @liu_2016].
+
+We create a package containing functions for evaluate modeling fit for DCMs using the $M_2$ statistic using the dcm2 package.
+The package provides native support for models estimated with GDINA, but package authors can create methods for different classes of models.
+
+You can install the release version of dcm2 from [CRAN](https://cran.r-project.org/):
+
+```r
+install.packages("dcm2")
+```
+
+To install the development version from [GitHub](https://github.com/) use:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("atlas-aai/dcm2")
+```
+
+## Usage
+
+Once dcm2 has been installed, we can estimate a DCM and apply the $M_2$ statistic to estimate the evidence of model fit.
+
+```{r load-pkg, echo = TRUE, eval = FALSE}
+library(dcm2)
+library(tidyverse)
+library(GDINA)
+```
+
+We included simulated data in the dcm2 package to demonstrate how the package can be used.
+We can load in this data using:
+
+```{r load-data, echo = FALSE, eval = TRUE}
+fullData <- dcm2::sample_data
+q_matrix <- fullData$q_matrix
+data <- fullData$data
+```
+
+```{r load-data-print, echo = TRUE, eval = FALSE}
+fullData <- dcm2::sample_data
+q_matrix <- fullData$q_matrix
+data <- fullData$data
+```
+
+Then, we want to estimate a DCM to fit this data.
+We will use the GDINA package to estimate a log-linear cognitive diagnosis model [LCDM; @henson_2009].
+However, we need to format the data prior to fitting the LCDM.
+
+```{r prep-data, echo = FALSE, eval = TRUE}
+fit_dat <- data %>%
+             tidyr::pivot_wider(names_from = "item_id",
+                                values_from = "score") %>%
+             dplyr::select(-"resp_id") %>%
+             as.matrix() %>%
+             unname()
+```
+
+```{r prep-data-print, echo = TRUE, eval = FALSE}
+fit_dat <- data %>%
+             tidyr::pivot_wider(names_from = "item_id",
+                                values_from = "score") %>%
+             dplyr::select(-"resp_id") %>%
+             as.matrix() %>%
+             unname()
+```
+
+Now that the data is formatted, we can fit the model using:
+
+```{r fit-model-print, echo = TRUE, eval = FALSE}
+gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                          Q = data.frame(q_matrix),
+                          model = "logitGDINA",
+                          control = list(conv.type = "neg2LL"))
+```
+
+```{r fit-model, echo = FALSE, eval = TRUE, results = "hide"}
+gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                          Q = data.frame(q_matrix),
+                          model = "logitGDINA",
+                          control = list(conv.type = "neg2LL"))
+```
+
+Finally, we use the `fit_m2()` function to estimate the model fit using the $M_2$ fit statistic for the model estimated from the GDINA package.
+This function produces a tibble with all of the output for the $M_2$ fit statistic.
+
+```{r estimate-gdina-model-fit, echo = TRUE}
+fit_m2(gdina_mod, ci = 0.9)
+```
+
+`m2` reports the Chi-squared statistic for the $M_2$ fit statistic, `df` reports the degrees of freedom for the Chi-squared test, and `pval` reports the p value of that Chi-squared test.
+`rmsea` reports the Root Mean Squared Error of Approximation (RMSEA) for the $M_2$ statistic, `ci_lower` reports the lower bound of the 90% confidence interval for the RMSEA, and `ci_upper` reports the upper bound of the 90% confidence interval for the RMSEA.
+Note that these confidence intervals bounds are for the 90% confidence interval, which is the default setting for the `fit_m2()` function based on Kline [-@kline_2015].
+Finally, `srmsr` reports the standardized root mean squared residual (SRMSR) for the $M_2$ statistic.
+
+As the final step in this demonstration, we interpret the model fit results from this code.
+The previous results indicated $M_2 = 9.35, df = 13, p = .75$, which suggests that the model fit the data since the p value was greater than .05.
+The 90% confidence interval for the RMSEA for the $M_2$ statistic suggests the model fits the data well, since the entire confidence interval is less than .06 [@hu_bentler_1999].
+Similarly, the SRMSR for the $M_2$ statistic suggests the model fits the data well, since the SRMSR statistic is less than .08 [@hu_bentler_1999].
+Taken together, this evidence suggests the model fits the data well.
+
+## References
