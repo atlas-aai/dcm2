@@ -15,10 +15,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-
-library(dcm2)
-library(tidyverse)
-library(GDINA)
 ```
 
 Model fit is a key requirement for making inferences from psychometric models [@chen_2013].
@@ -62,12 +58,6 @@ library(GDINA)
 We included simulated data in the dcm2 package to demonstrate how the package can be used.
 We can load in this data using:
 
-```{r load-data, echo = FALSE, eval = TRUE}
-full_data <- dcm2::sample_data
-q_matrix <- full_data$q_matrix
-data <- full_data$data
-```
-
 ```{r load-data-print, echo = TRUE, eval = FALSE}
 full_data <- dcm2::sample_data
 q_matrix <- full_data$q_matrix
@@ -77,15 +67,6 @@ data <- full_data$data
 Then, we want to estimate a DCM to fit this data.
 We will use the GDINA package to estimate a log-linear cognitive diagnosis model [LCDM; @henson_2009].
 However, we need to format the data prior to fitting the LCDM.
-
-```{r prep-data, echo = FALSE, eval = TRUE}
-fit_dat <- data %>%
-             tidyr::pivot_wider(names_from = "item_id",
-                                values_from = "score") %>%
-             dplyr::select(-"resp_id") %>%
-             as.matrix() %>%
-             unname()
-```
 
 ```{r prep-data-print, echo = TRUE, eval = FALSE}
 fit_dat <- data %>%
@@ -105,17 +86,10 @@ gdina_mod <- GDINA::GDINA(dat = fit_dat,
                           control = list(conv.type = "neg2LL"))
 ```
 
-```{r fit-model, echo = FALSE, eval = TRUE, results = "hide"}
-gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                          Q = data.frame(q_matrix),
-                          model = "logitGDINA",
-                          control = list(conv.type = "neg2LL"))
-```
-
 Finally, we use the `fit_m2()` function to estimate the model fit using the $M_2$ fit statistic for the model estimated from the GDINA package.
 This function produces a tibble with all of the output for the $M_2$ fit statistic.
 
-```{r estimate-gdina-model-fit, echo = TRUE}
+```{r estimate-gdina-model-fit, echo = TRUE, eval = FALSE}
 fit_m2(gdina_mod, ci = 0.9)
 ```
 
@@ -126,8 +100,9 @@ Finally, `srmsr` reports the standardized root mean squared residual (SRMSR) for
 
 As the final step in this demonstration, we interpret the model fit results from this code.
 The previous results indicated $M_2 = 9.35, df = 13, p = .75$, which suggests that the model fit the data since the p value was greater than .05.
+The RMSEA in the previous results was 0, with a 90% confidence interval ranging from 0 to .023, and the SRMSR was .018.
 The 90% confidence interval for the RMSEA for the $M_2$ statistic suggests the model fits the data well, since the entire confidence interval is less than .06 [@hu_bentler_1999].
-Similarly, the SRMSR for the $M_2$ statistic suggests the model fits the data well, since the SRMSR statistic is less than .08 [@hu_bentler_1999].
+Similarly, the SRMSR suggests the model fits the data well, since the SRMSR statistic is less than .08 [@hu_bentler_1999].
 Taken together, this evidence suggests the model fits the data well.
 
 ## References
