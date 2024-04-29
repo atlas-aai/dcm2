@@ -477,7 +477,7 @@ skills <- function(base_rates, l, qmatrix) {
       temp <- ""
       for (kk in seq_len(ncol(qmatrix))) {
         if ((stringr::str_sub(skills_needed[ii, jj], kk, kk) == 1) &&
-            (stringr::str_sub(skills_have[ii, jj], kk, kk) == 0)) {
+              (stringr::str_sub(skills_have[ii, jj], kk, kk) == 0)) {
           temp <- stringr::str_c(temp, "1")
         } else {
           temp <- stringr::str_c(temp, "0")

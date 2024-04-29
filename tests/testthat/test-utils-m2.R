@@ -69,6 +69,18 @@ test_that("test rmsea_ci", {
   expect_equal(length(ci), 2)
   expect_equal(ci[1], 0.036, tolerance = .015)
   expect_equal(ci[2], 0.068, tolerance = .015)
+
+  x2 <- 0.3
+  df <- 3
+  n <- 1
+  ci_lower <- .3
+  ci_upper <- 1
+
+  ci <- dcm2:::rmsea_ci(x2, df, n, ci_lower, ci_upper)
+
+  expect_equal(length(ci), 2)
+  expect_equal(ci[1], 0)
+  expect_equal(ci[2], 0)
 })
 
 test_that("test skills", {
