@@ -70,11 +70,11 @@ However, we need to format the data prior to fitting the LCDM.
 
 ```{r prep-data-print, echo = TRUE, eval = FALSE}
 fit_dat <- data %>%
-             tidyr::pivot_wider(names_from = "item_id",
-                                values_from = "score") %>%
-             dplyr::select(-"resp_id") %>%
-             as.matrix() %>%
-             unname()
+  tidyr::pivot_wider(names_from = "item_id",
+                     values_from = "score") %>%
+  dplyr::select(-"resp_id") %>%
+  as.matrix() %>%
+  unname()
 ```
 
 Now that the data is formatted, we can fit the model using:
