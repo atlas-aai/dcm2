@@ -1,5 +1,7 @@
 linters: linters_with_defaults()
 exclusions: list(
+    "data-raw/sample-data.R",
+    "data-raw/single-attribute-data.R",
     "R/utils-m2.R" = list(
       cyclocomp_linter = Inf
     )

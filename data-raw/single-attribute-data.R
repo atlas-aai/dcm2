@@ -103,47 +103,45 @@ intercepts <- needed_params %>%
 effects <- needed_params %>%
   dplyr::filter(.data$param != "intercept") %>%
   tidyr::nest(item_params = -"item_id") %>%
-  dplyr::mutate(params =
-                  purrr::map(.data$item_params,
-                             function(x, dis, att) {
-                               if (nrow(x) == 1) {
-                                 effect <- x %>%
-                                   dplyr::mutate(value = stats::rnorm(1,
-                                                                      mean =
-                                                                        dis,
-                                                                      sd =
-                                                                        0.25))
-                               } else {
-                                 effect <- x %>%
-                                   dplyr::mutate(mef = dplyr::case_when(
-                                     !stringr::str_detect(.data$param, "__") ~
-                                       truncnorm::rtruncnorm(
-                                                  dplyr::n(),
-                                                  a = 0,
-                                                  mean = dis / 1.5,
-                                                  sd = sqrt(1 / 36))),
-                                                 int = dplyr::case_when(
-                                                   stringr::str_detect(
-                                                     .data$param, "__") ~
-                                                     truncnorm::rtruncnorm(
+  dplyr::mutate(
+    params = purrr::map(.data$item_params,
+                        function(x, dis, att) {
+                          if (nrow(x) == 1) {
+                            effect <- x %>%
+                              dplyr::mutate(value = stats::rnorm(1, mean = dis,
+                                                                 sd = 0.25))
+                          } else {
+                            effect <-
+                              x %>%
+                              dplyr::mutate(mef =
+                                              dplyr::case_when(
+                                                !stringr::str_detect(
+                                                  .data$param, "__") ~
+                                                  truncnorm::rtruncnorm(
+                                                    dplyr::n(),
+                                                    a = 0,
+                                                    mean = dis / 1.5,
+                                                    sd = sqrt(1 / 36))),
+                                            int = dplyr::case_when(
+                                              stringr::str_detect(
+                                                .data$param, "__") ~
+                                                truncnorm::rtruncnorm(
                                                   dplyr::n(),
                                                   a = -1 * min(.data$mef,
-                                                               na.rm =  TRUE),
+                                                               na.rm = TRUE),
                                                   mean = dis / 1.5,
                                                   sd = sqrt(1 / 36))),
-                                                 value =
-                                                   dplyr::coalesce(.data$mef,
-                                                                   .data$int)
-                                                 ) %>%
-                                   dplyr::select("param", "valid", "value")
-                               }
-                               ret_frame <- effect %>%
-                                 dplyr::select("param", "value") %>%
-                                 tidyr::pivot_wider(names_from = "param",
-                                                    values_from = "value")
-                               return(ret_frame)
-                             },
-                             dis = discrimination, att = attributes)) %>%
+                                            value = dplyr::coalesce(
+                                              .data$mef, .data$int)) %>%
+                              dplyr::select("param", "valid", "value")
+                          }
+                          ret_frame <- effect %>%
+                            dplyr::select("param", "value") %>%
+                            tidyr::pivot_wider(names_from = "param",
+                                               values_from = "value")
+                          return(ret_frame)
+                        },
+                        dis = discrimination, att = attributes)) %>%
   dplyr::select("item_id", "params") %>%
   tidyr::unnest("params")
 
