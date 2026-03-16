@@ -31,6 +31,7 @@ BugReports: https://github.com/atlas-aai/dcm2/issues
 Depends:
     R (>= 3.6)
 Imports:
+    dcmstan,
     dplyr (>= 0.8.4),
     glue (>= 1.4.2),
     magrittr (>= 1.5),
