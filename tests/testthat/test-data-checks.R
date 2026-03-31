@@ -19,21 +19,21 @@ test_that("test check_ci", {
 })
 
 test_that("test check_data", {
-  fit_dat <- dcm2::sample_data$data %>%
+  fit_dat <- dcm2::sample_data$data |>
     tidyr::pivot_wider(names_from = "item_id",
-                       values_from = "score") %>%
-    dplyr::select(-"resp_id") %>%
-    as.matrix() %>%
+                       values_from = "score") |>
+    dplyr::select(-"resp_id") |>
+    as.matrix() |>
     unname()
 
   q_matrix <- dcm2::sample_data$q_matrix
 
-  err <- rlang::catch_cnd(dcm2:::check_data(fit_dat %>%
+  err <- rlang::catch_cnd(dcm2:::check_data(fit_dat |>
                                               as.data.frame(),
                                             q_matrix))
   expect_match(err$message, "must be a matrix.")
 
-  err <- rlang::catch_cnd(dcm2:::check_data(tibble::tibble() %>%
+  err <- rlang::catch_cnd(dcm2:::check_data(tibble::tibble() |>
                                               as.matrix(),
                                             q_matrix))
   expect_match(err$message, "must include data for at least one student.")
@@ -41,25 +41,25 @@ test_that("test check_data", {
   err <- rlang::catch_cnd(dcm2:::check_data(fit_dat[, -8], q_matrix))
   expect_match(err$message, "The number of items in `data`")
 
-  err <- rlang::catch_cnd(dcm2:::check_data(fit_dat %>%
-                                              as.double() %>%
+  err <- rlang::catch_cnd(dcm2:::check_data(fit_dat |>
+                                              as.double() |>
                                               matrix(nrow = 1000, ncol = 8),
                                             q_matrix))
   expect_match(err$message, "must be of type integer.")
 
-  fit_dat <- dcm2::sample_data$data %>%
+  fit_dat <- dcm2::sample_data$data |>
     tidyr::pivot_wider(names_from = "item_id",
-                       values_from = "score") %>%
-    dplyr::select(-"resp_id") %>%
-    as.matrix() %>%
+                       values_from = "score") |>
+    dplyr::select(-"resp_id") |>
+    as.matrix() |>
     unname()
 
   fit_dat[1, 1] <- NA
 
   q_matrix <- dcm2::sample_data$q_matrix
 
-  err <- rlang::catch_cnd(dcm2:::check_data(fit_dat %>%
-                                              as.double() %>%
+  err <- rlang::catch_cnd(dcm2:::check_data(fit_dat |>
+                                              as.double() |>
                                               matrix(nrow = 1000, ncol = 8),
                                             q_matrix))
   expect_match(err$message,
@@ -69,11 +69,11 @@ test_that("test check_data", {
 test_that("test check_struc_params", {
   q_matrix <- dcm2::sample_data$q_matrix
 
-  fit_dat <- dcm2::sample_data$data %>%
+  fit_dat <- dcm2::sample_data$data |>
     tidyr::pivot_wider(names_from = "item_id",
-                       values_from = "score") %>%
-    dplyr::select(-"resp_id") %>%
-    as.matrix() %>%
+                       values_from = "score") |>
+    dplyr::select(-"resp_id") |>
+    as.matrix() |>
     unname()
 
   gdina_mod <- GDINA::GDINA(dat = fit_dat,
@@ -83,7 +83,7 @@ test_that("test check_struc_params", {
 
   struc_params <- gdina_mod$struc.parm
 
-  err <- rlang::catch_cnd(dcm2:::check_struc_params(struc_params %>%
+  err <- rlang::catch_cnd(dcm2:::check_struc_params(struc_params |>
                                                       as.character(),
                                                     q_matrix))
   expect_match(err$message, "The class of `struc_params` must be numeric.")
@@ -92,7 +92,7 @@ test_that("test check_struc_params", {
   expect_match(err$message,
                "The length of `struc_params` does not match the number of")
 
-  err <- rlang::catch_cnd(dcm2:::check_struc_params(struc_params %>%
+  err <- rlang::catch_cnd(dcm2:::check_struc_params(struc_params |>
                                                       as.integer(),
                                                     q_matrix))
   expect_match(err$message, "struc_params` must be of type double")
@@ -101,22 +101,22 @@ test_that("test check_struc_params", {
 test_that("test check_pi_matrix", {
   q_matrix <- dcm2::sample_data$q_matrix
 
-  fit_dat <- dcm2::sample_data$data %>%
+  fit_dat <- dcm2::sample_data$data |>
     tidyr::pivot_wider(names_from = "item_id",
-                       values_from = "score") %>%
-    dplyr::select(-"resp_id") %>%
-    as.matrix() %>%
+                       values_from = "score") |>
+    dplyr::select(-"resp_id") |>
+    as.matrix() |>
     unname()
   gdina_mod <- GDINA::GDINA(dat = fit_dat,
                             Q = data.frame(sample_data$q_matrix),
                             model = "logitGDINA",
                             control = list(conv.type = "neg2LL"))
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
-  err <- rlang::catch_cnd(dcm2:::check_pi_matrix(pi_matrix %>%
+  err <- rlang::catch_cnd(dcm2:::check_pi_matrix(pi_matrix |>
                                                    as.data.frame(),
                                                  q_matrix))
   expect_match(err$message, "must be a matrix.")
@@ -126,8 +126,8 @@ test_that("test check_pi_matrix", {
   expect_match(err$message,
                "The number of items specific by `pi_matrix` and `qmatrix` do")
 
-  err <- rlang::catch_cnd(dcm2:::check_pi_matrix(pi_matrix %>%
-                                                   as.character() %>%
+  err <- rlang::catch_cnd(dcm2:::check_pi_matrix(pi_matrix |>
+                                                   as.character() |>
                                                    matrix(nrow = 8,
                                                           ncol = 4),
                                                  q_matrix))
@@ -137,11 +137,11 @@ test_that("test check_pi_matrix", {
 test_that("test check_qmatrix", {
   q_matrix <- dcm2::sample_data$q_matrix
 
-  fit_dat <- dcm2::sample_data$data %>%
+  fit_dat <- dcm2::sample_data$data |>
     tidyr::pivot_wider(names_from = "item_id",
-                       values_from = "score") %>%
-    dplyr::select(-"resp_id") %>%
-    as.matrix() %>%
+                       values_from = "score") |>
+    dplyr::select(-"resp_id") |>
+    as.matrix() |>
     unname()
 
   gdina_mod <- GDINA::GDINA(dat = fit_dat,
@@ -149,14 +149,14 @@ test_that("test check_qmatrix", {
                             model = "logitGDINA",
                             control = list(conv.type = "neg2LL"))
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
-  q_matrix <- q_matrix %>%
+  q_matrix <- q_matrix |>
     as.data.frame()
 
-  err <- rlang::catch_cnd(dcm2:::check_qmatrix(q_matrix %>%
+  err <- rlang::catch_cnd(dcm2:::check_qmatrix(q_matrix |>
                                                  as.matrix(nrow = 8, ncol = 2),
                                                pi_matrix))
   expect_match(err$message, "must be a data frame.")
@@ -175,11 +175,11 @@ test_that("test check_qmatrix", {
 test_that("test check_allowed_profiles", {
   q_matrix <- dcm2::sample_data$q_matrix
 
-  fit_dat <- dcm2::sample_data$data %>%
+  fit_dat <- dcm2::sample_data$data |>
     tidyr::pivot_wider(names_from = "item_id",
-                       values_from = "score") %>%
-    dplyr::select(-"resp_id") %>%
-    as.matrix() %>%
+                       values_from = "score") |>
+    dplyr::select(-"resp_id") |>
+    as.matrix() |>
     unname()
 
   gdina_mod <- GDINA::GDINA(dat = fit_dat,
@@ -187,8 +187,8 @@ test_that("test check_allowed_profiles", {
                             model = "logitGDINA",
                             control = list(conv.type = "neg2LL"))
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- tibble::tibble(att_1 = c(0, 1, 1),

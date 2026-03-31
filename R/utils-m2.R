@@ -21,8 +21,7 @@ calc_emp_marginal_prob <- function(data, n) {
   p2 <- crossprod(x, x) / n
 
   # create a vector with the first- and second-order marginal probabilities
-  p <- c(as.matrix(p1), p2[lower.tri(p2)])
-  return(p)
+  c(as.matrix(p1), p2[lower.tri(p2)])
 }
 
 #' Calculate all possible attribute mastery profiles
@@ -37,15 +36,13 @@ att_profile <- function(natt) {
   att_names <- glue::glue("att_{1:natt}") # nolint
 
   # all possible combinations of attribute mastery
-  profile <- as_binary(natt) |>
+  as_binary(natt) |>
     # specify attribute names
     tibble::as_tibble(.name_repair = ~att_names) |>
     # create attribute mastery profile
     tidyr::unite(col = "profile", sep = "", remove = FALSE, na.rm = TRUE) |>
     # pull attribute mastery profile
     dplyr::pull(profile)
-
-  return(profile)
 }
 
 #' Calculate model marginal probabilities model fit
@@ -74,9 +71,7 @@ calc_mod_marginal_prob <- function(num_items, pi_matrix, base_rates) {
   # calculate the second-order marginal probabilities
   bi <- calc_bivariate_prob(num_items, bi, pi_matrix, base_rates)
   # create a vector with the first- and second-order marginal probabilities
-  e <- c(uni, bi[lower.tri(bi)])
-
-  return(e)
+  c(uni, bi[lower.tri(bi)])
 }
 
 #' Calculate the C_r matrix
@@ -127,10 +122,8 @@ calc_c_r <- function(num_items, num_item_params, pi_matrix, base_rates, l,
 
   covariance_matrix <- calc_covariance_matrix(num_items, pi_matrix, base_rates)
 
-  cr <- jacobian %*% solve(t(jacobian) %*% covariance_matrix %*% jacobian) %*%
+  jacobian %*% solve(t(jacobian) %*% covariance_matrix %*% jacobian) %*%
     t(jacobian)
-
-  return(cr)
 }
 
 #' Calculate the Jacobian matrix
@@ -329,7 +322,7 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
                       rbind(jacobian12, jacobian22))
   }
 
-  return(jacobian)
+  return(jacobian) # nolint
 }
 
 #' Calculate the asymptotic covariance matrix
@@ -345,12 +338,11 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
 #' @noRd
 calc_covariance_matrix <- function(num_items, pi_matrix, base_rates) {
   partitioned_cov_mat <- Mord(c(1:num_items), pi_matrix, base_rates)
-  cov_mat <- cbind(rbind(partitioned_cov_mat$Xi11,
-                         partitioned_cov_mat$Xi21),
-                   rbind(t(partitioned_cov_mat$Xi21),
-                         partitioned_cov_mat$Xi22))
 
-  return(cov_mat)
+  cbind(rbind(partitioned_cov_mat$Xi11,
+              partitioned_cov_mat$Xi21),
+        rbind(t(partitioned_cov_mat$Xi21),
+              partitioned_cov_mat$Xi22))
 }
 
 #' Calculate the Design Matrix
@@ -377,8 +369,6 @@ calc_covariance_matrix <- function(num_items, pi_matrix, base_rates) {
 calc_design_matrix <- function(num_item_params, qmatrix, model_type,
                                hierarchy, allowed_profiles) {
   design_matrix <- list()
-
-  att_names <- names(qmatrix)
 
   for (ii in seq_len(nrow(qmatrix))) {
     if (sum(qmatrix[ii, ]) > 1) {
@@ -434,12 +424,12 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type,
       }
 
       design_matrix[[ii]] <- design_matrix[[ii]] |>
-        only_if(model_type %in% c("ACDM", "LLM", "RRUM", "CRUM", "NCRUM"))(dplyr::mutate)(
-          int = 1
-        ) |>
-        only_if(model_type %in% c("ACDM", "LLM", "RRUM", "CRUM", "NCRUM"))(dplyr::select)(
-          "int", dplyr::everything()
-        ) |>
+        only_if(
+          model_type %in% c("ACDM", "LLM", "RRUM", "CRUM", "NCRUM")
+        )(dplyr::mutate)(int = 1) |>
+        only_if(
+          model_type %in% c("ACDM", "LLM", "RRUM", "CRUM", "NCRUM")
+        )(dplyr::select)("int", dplyr::everything()) |>
         as.matrix() |>
         unname()
     } else {
@@ -458,7 +448,7 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type,
     }
   }
 
-  return(design_matrix)
+  return(design_matrix) # nolint
 }
 
 #' Create a matrix containing all possible parameter combinations
@@ -503,7 +493,7 @@ possible_parameters <- function(natt, model_type) {
     profiles[1, 2] <- 1
   }
 
-  return(profiles)
+  return(profiles) # nolint
 }
 
 #' Calculate the pattern matrix
@@ -537,7 +527,7 @@ calc_patt <- function(qmatrix, l, skills_missing, num_item_params) {
     }
   }
 
-  return(patt)
+  return(patt) # nolint
 }
 
 #' Calculate the skills missing for each item and attribute class
@@ -576,7 +566,7 @@ skills <- function(base_rates, l, qmatrix) {
     }
   }
 
-  return(skills_missing)
+  return(skills_missing) # nolint
 }
 
 #' Calculate all possible item parameters
@@ -618,9 +608,7 @@ item_param_profiles <- function(natt) {
     ints <- NULL
   }
 
-  params <- c("Intercept", mefs, ints)
-
-  return(params)
+  c("Intercept", mefs, ints)
 }
 
 #' Fisher Partial Alpha
@@ -660,7 +648,7 @@ calc_bivariate_prob <- function(num_items, bi, pi_matrix, base_rates) {
     }
   }
 
-  return(bi)
+  return(bi) # nolint
 }
 
 
@@ -680,7 +668,7 @@ calc_univariate_prob <- function(num_items, uni, pi_matrix, base_rates) {
     uni[ii] <- sum(t(pi_matrix)[, ii] * base_rates)
   }
 
-  return(uni)
+  return(uni) # nolint
 }
 
 #' Calculate RMSEA from M2
@@ -734,7 +722,7 @@ rmsea_ci <- function(x2, df, n, ci_lower, ci_upper) {
     rmsea_upper <- 0
   }
 
-  return(c(rmsea_lower, rmsea_upper))
+  return(c(rmsea_lower, rmsea_upper)) # nolint
 }
 
 #' Only If
@@ -778,7 +766,7 @@ only_if <- function(condition) {
 as_binary <- function(x) {
   attr_names <- as.vector(glue::glue("dplyr::desc(att_{1:x})"))
 
-  profiles <- rep(list(c(0L, 1L)), x) |>
+  rep(list(c(0L, 1L)), x) |>
     purrr::set_names(glue::glue("att_{seq_len(x)}")) |>
     expand.grid() |>
     tibble::as_tibble() |>
@@ -788,5 +776,4 @@ as_binary <- function(x) {
     dplyr::select(-"total") |>
     as.matrix() |>
     unname()
-  return(profiles)
 }

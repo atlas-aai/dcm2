@@ -12,8 +12,8 @@ test_that("M2 for LCDM", {
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -39,21 +39,19 @@ test_that("M2 for LCDM", {
   q <- sample_data$q_matrix |>
     dplyr::mutate(att_3 = c(1, 1, 0, 0, 1, 0, 0, 0)) |>
     as.data.frame()
-  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                                                         Q = q,
-                                                         model = "logitGDINA",
-                                                         rule = "GDINA2",
-                                                         control =
-                                                           list(conv.type =
-                                                                  "neg2LL")))
+  out <- utils::capture.output(
+    gdina_mod <- GDINA::GDINA(dat = fit_dat, Q = q, model = "logitGDINA",
+                              rule = "GDINA2",
+                              control = list(conv.type = "neg2LL"))
+  )
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(3) |>
@@ -93,8 +91,8 @@ test_that("M2 works - DINA", {
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -132,8 +130,8 @@ test_that("M2 works - DINO", {
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -171,8 +169,8 @@ test_that("M2 works - ACDM", {
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -210,8 +208,8 @@ test_that("M2 works - LLM", {
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -249,8 +247,8 @@ test_that("M2 works - RRUM", {
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -288,8 +286,8 @@ test_that("M2 works - BUGDINO", {
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -315,22 +313,19 @@ test_that("M2 works - BUGDINO", {
 
 test_that("M2 for HDCM", {
   q <- data.frame(sample_data$q_matrix)
-  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                                                         Q = q,
-                                                         model = "logitGDINA",
-                                                         att.str =
-                                                           list(c(1, 2)),
-                                                         control =
-                                                           list(conv.type =
-                                                                  "neg2LL")))
+  out <- utils::capture.output(
+    gdina_mod <- GDINA::GDINA(dat = fit_dat, Q = q, model = "logitGDINA",
+                              att.str = list(c(1, 2)),
+                              control = list(conv.type = "neg2LL"))
+  )
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -357,21 +352,19 @@ test_that("M2 for HDCM", {
 
 test_that("M2 for C-RUM", {
   q <- data.frame(sample_data$q_matrix)
-  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                                                         Q = q,
-                                                         model = "ACDM",
-                                                         linkfunc = "logit",
-                                                         control =
-                                                           list(conv.type =
-                                                                  "neg2LL")))
+  out <- utils::capture.output(
+    gdina_mod <- GDINA::GDINA(dat = fit_dat, Q = q, model = "ACDM",
+                              linkfunc = "logit",
+                              control = list(conv.type = "neg2LL"))
+  )
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -397,21 +390,19 @@ test_that("M2 for C-RUM", {
 
 test_that("M2 for NC-RUM", {
   q <- data.frame(sample_data$q_matrix)
-  out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
-                                                         Q = q,
-                                                         model = "ACDM",
-                                                         linkfunc = "log",
-                                                         control =
-                                                           list(conv.type =
-                                                                  "neg2LL")))
+  out <- utils::capture.output(
+    gdina_mod <- GDINA::GDINA(dat = fit_dat, Q = q, model = "ACDM",
+                              linkfunc = "log",
+                              control = list(conv.type = "neg2LL"))
+  )
 
   gdina_m2 <- GDINA::modelfit(gdina_mod)
 
   # calculate m2 with dcm2
   struc_params <- gdina_mod$struc.parm
 
-  pi_matrix <- gdina_mod$LC.prob %>%
-    as.matrix() %>%
+  pi_matrix <- gdina_mod$LC.prob |>
+    as.matrix() |>
     unname()
 
   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -435,6 +426,7 @@ test_that("M2 for NC-RUM", {
   expect_equal(dcm2_m2$srmsr, gdina_m2$SRMSR, tolerance = .01)
 })
 
+# nolint start
 # test_that("M2 for NIDA", {
 #   q <- data.frame(sample_data$q_matrix)
 #   out <- utils::capture.output(gdina_mod <- GDINA::GDINA(dat = fit_dat,
@@ -449,8 +441,8 @@ test_that("M2 for NC-RUM", {
 #   # calculate m2 with dcm2
 #   struc_params <- gdina_mod$struc.parm
 #
-#   pi_matrix <- gdina_mod$LC.prob %>%
-#     as.matrix() %>%
+#   pi_matrix <- gdina_mod$LC.prob |>
+#     as.matrix() |>
 #     unname()
 #
 #   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -489,8 +481,8 @@ test_that("M2 for NC-RUM", {
 #   # calculate m2 with dcm2
 #   struc_params <- gdina_mod$struc.parm
 #
-#   pi_matrix <- gdina_mod$LC.prob %>%
-#     as.matrix() %>%
+#   pi_matrix <- gdina_mod$LC.prob |>
+#     as.matrix() |>
 #     unname()
 #
 #   allowed_profiles <- dcmstan::create_profiles(2) |>
@@ -513,3 +505,4 @@ test_that("M2 for NC-RUM", {
 #   expect_equal(dcm2_m2$ci_upper, gdina_m2$RMSEA2.CI[2], tolerance = .01)
 #   expect_equal(dcm2_m2$srmsr, gdina_m2$SRMSR, tolerance = .01)
 # })
+# nolint end

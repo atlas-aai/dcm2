@@ -64,11 +64,9 @@ fit_m2.GDINA <- function(model, ci = 0.9, ...) {
 
   names(allowed_profiles) <- names(model$options$Q)
 
-  m2 <- calc_m2(data = model$options$dat, struc_params = model$struc.parm,
-                num_item_params = num_item_params,
-                pi_matrix = model$LC.prob, qmatrix = model$options$Q,
-                ci = ci, link = link_func, model_type = mod_type,
-                allowed_profiles = allowed_profiles)
-
-  return(m2)
+  calc_m2(data = model$options$dat, struc_params = model$struc.parm,
+          num_item_params = num_item_params,
+          pi_matrix = model$LC.prob, qmatrix = model$options$Q,
+          ci = ci, link = link_func, model_type = mod_type,
+          allowed_profiles = allowed_profiles)
 }

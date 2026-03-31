@@ -101,7 +101,7 @@ test_that("test skills", {
                                     prof3 = c("10", "00", "10", "00", "10",
                                               "00"),
                                     prof4 = c("00", "00", "00", "00", "00",
-                                              "00")) %>%
+                                              "00")) |>
     as.matrix()
 
   expected_output <- unname(expected_output)
@@ -118,7 +118,7 @@ test_that("test calc_patt", {
   skills_missing <- tibble::tibble(`00` = c("10", "01", "10", "01"),
                                    `10` = c("00", "01", "00", "01"),
                                    `01` = c("10", "00", "10", "00"),
-                                   `11` = c("00", "00", "00", "00")) %>%
+                                   `11` = c("00", "00", "00", "00")) |>
     as.matrix()
 
   num_item_params <- rep(2, 4)
@@ -132,8 +132,8 @@ test_that("test calc_patt", {
                tibble::tibble(`00` = rep(1, nrow(q_matrix)),
                               `10` = c(2, 1, 2, 1),
                               `01` = c(1, 2, 1, 2),
-                              `11` = rep(2, nrow(q_matrix))) %>%
-                 as.matrix() %>%
+                              `11` = rep(2, nrow(q_matrix))) |>
+                 as.matrix() |>
                  unname())
 })
 

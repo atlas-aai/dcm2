@@ -50,20 +50,16 @@
 #'         model_type = "LCDM", allowed_profiles = allowed_profiles)
 #'
 calc_m2 <- function(
-  data,
-  struc_params,
-  num_item_params,
-  pi_matrix,
-  qmatrix,
-  ci = 0.9,
-  link = "logit",
-  model_type = c("LCDM", "GDINA", "ACDM", "LLM", "RRUM", "DINO", "DINA",
-                 "BUGDINO", "CRUM", "NCRUM", "NIDA", "NIDO"),
-  allowed_profiles) {
-
-  # To-do
-  ## add additional models
-
+    data,
+    struc_params,
+    num_item_params,
+    pi_matrix,
+    qmatrix,
+    ci = 0.9,
+    link = "logit",
+    model_type = c("LCDM", "GDINA", "ACDM", "LLM", "RRUM", "DINO", "DINA",
+                   "BUGDINO", "CRUM", "NCRUM", "NIDA", "NIDO"),
+    allowed_profiles) {
   # data checks
   check_data(data, qmatrix)
   check_pi_matrix(pi_matrix, qmatrix)
@@ -74,10 +70,6 @@ calc_m2 <- function(
   model_type <- rlang::arg_match(model_type)
 
   model_type <- ifelse(model_type == "GDINA", "LCDM", model_type)
-  # model_type <- ifelse(model_type == "NIDA", "RRUM", model_type)
-  # model_type <- ifelse(model_type == "NIDO", "LCDM", model_type)
-
-  att_names <- names(qmatrix)
 
   num_items <- nrow(qmatrix)
   num_attr <- ncol(qmatrix)
@@ -116,11 +108,13 @@ calc_m2 <- function(
 
   skills_missing <- skills(base_rates, l, qmatrix)
 
+  # nolint start: return_linter
   patt <- calc_patt(qmatrix, l, skills_missing, num_item_params)
 
   jacobian <- calc_jacobian_matrix(num_items, num_item_params, pi_matrix,
                                    design_matrix, patt, base_rates, l, num_attr,
                                    link, model_type)
+  # nolint end
 
   df <- nrow(jacobian) - ncol(jacobian)
 
@@ -140,11 +134,9 @@ calc_m2 <- function(
   ci_lower <- ci[1]
   ci_upper <- ci[2]
 
-  results <- tibble::tibble(m2 = as.numeric(m2_stat),
-                            df = df,
-                            pval = as.numeric(sig),
-                            rmsea = as.numeric(rmsea),
-                            ci_lower, ci_upper, srmsr)
-
-  return(results)
+  tibble::tibble(m2 = as.numeric(m2_stat),
+                 df = df,
+                 pval = as.numeric(sig),
+                 rmsea = as.numeric(rmsea),
+                 ci_lower, ci_upper, srmsr)
 }
