@@ -42,7 +42,7 @@ att_profile <- function(natt) {
     # create attribute mastery profile
     tidyr::unite(col = "profile", sep = "", remove = FALSE, na.rm = TRUE) |>
     # pull attribute mastery profile
-    dplyr::pull(profile)
+    dplyr::pull(.data$profile)
 }
 
 #' Calculate model marginal probabilities model fit
