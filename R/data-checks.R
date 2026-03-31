@@ -34,12 +34,12 @@ check_data <- function(data, qmatrix) {
          call. = FALSE)
   }
 
-  missing_data_present <- any(is.na(data))
-
   if (missing_data_present) {
     stop("The M2 statistic is unstable when missing data are present.",
          call. = FALSE)
   }
+
+  missing_data_present <- any(is.na(data))
 }
 
 check_struc_params <- function(struc_params, pi_matrix) {

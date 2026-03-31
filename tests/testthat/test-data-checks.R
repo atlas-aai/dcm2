@@ -46,6 +46,24 @@ test_that("test check_data", {
                                               matrix(nrow = 1000, ncol = 8),
                                             q_matrix))
   expect_match(err$message, "must be of type integer.")
+
+  fit_dat <- dcm2::sample_data$data %>%
+    tidyr::pivot_wider(names_from = "item_id",
+                       values_from = "score") %>%
+    dplyr::select(-"resp_id") %>%
+    as.matrix() %>%
+    unname()
+
+  fit_dat[1, 1] <- NA
+
+  q_matrix <- dcm2::sample_data$q_matrix
+
+  err <- rlang::catch_cnd(dcm2:::check_data(fit_dat %>%
+                                              as.double() %>%
+                                              matrix(nrow = 1000, ncol = 8),
+                                            q_matrix))
+  expect_match(err$message,
+               "The M2 statistic is unstable when missing data are present.")
 })
 
 test_that("test check_struc_params", {
@@ -152,6 +170,36 @@ test_that("test check_qmatrix", {
   err <- rlang::catch_cnd(dcm2:::check_qmatrix(q_matrix, pi_matrix))
   expect_match(err$message,
                "The entries of `qmatrix` must be 0 or 1.")
+})
 
+test_that("test check_allowed_profiles", {
+  q_matrix <- dcm2::sample_data$q_matrix
 
+  fit_dat <- dcm2::sample_data$data %>%
+    tidyr::pivot_wider(names_from = "item_id",
+                       values_from = "score") %>%
+    dplyr::select(-"resp_id") %>%
+    as.matrix() %>%
+    unname()
+
+  gdina_mod <- GDINA::GDINA(dat = fit_dat,
+                            Q = data.frame(sample_data$q_matrix),
+                            model = "logitGDINA",
+                            control = list(conv.type = "neg2LL"))
+
+  pi_matrix <- gdina_mod$LC.prob %>%
+    as.matrix() %>%
+    unname()
+
+  allowed_profiles <- tibble::tibble(att_1 = c(0, 1, 1),
+                                     att_2 = c(0, 0, 1))
+
+  err <- rlang::catch_cnd(dcm2:::check_allowed_profiles(allowed_profiles,
+                                                        pi_matrix))
+  expect_equal(
+    err$message,
+    paste("The number of allowable profiles (rows in `allowed_profiles`)",
+          "should equal the number of latent classes from the estimated",
+          "model (columns in `pi_matrix`).")
+  )
 })
