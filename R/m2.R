@@ -9,8 +9,10 @@
 #' @param qmatrix A data frame containing the Q-matrix
 #' @param ci The confidence interval for the RMSEA, computed from the M2
 #' @param link A character containing the link function.
-#' @param model_type A character containing the model type (e.g., `LCDM`)
-#' that was estimated.
+#' @param meas_model_type A character containing the type of measurement model
+#' (e.g., `LCDM`) that was estimated.
+#' @param hierarchical_model A logical variable indicating whether there is a
+#' hierarchical attribute structure.
 #'
 #' @return A data frame containing:
 #' * `m2`: The M2 statistic
@@ -42,42 +44,47 @@
 #'                unname()
 #' calc_m2(data = fit_dat, struc_params, pi_matrix,
 #'         qmatrix = data.frame(sample_data$q_matrix), ci = 0.9, link = "logit",
-#'         model_type = "LCDM")
+#'         meas_model_type = "LCDM")
 #'
 calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
                     link = "logit",
-                    model_type = c("LCDM", "GDINA", "ACDM", "LLM", "RRUM",
-                                   "DINO", "DINA", "BUGDINO")) {
+                    meas_model_type = c("LCDM", "GDINA", "ACDM", "LLM", "RRUM",
+                                        "DINO", "DINA", "BUGDINO"),
+                    hierarchical_model = FALSE) {
 
   # data checks
   check_data(data, qmatrix)
-  check_struc_params(struc_params, qmatrix)
+  # check_struc_params(struc_params, qmatrix)
   check_pi_matrix(pi_matrix, qmatrix)
   check_qmatrix(qmatrix, pi_matrix)
   ci <- check_ci(ci)
-  model_type <- rlang::arg_match(model_type)
+  meas_model_type <- rlang::arg_match(meas_model_type)
 
-  num_item_params <- if (model_type %in% c("DINO", "DINA", "BUGDINO")) {
+  num_item_params <- if (meas_model_type %in% c("DINO", "DINA", "BUGDINO")) {
     rep(2, nrow(qmatrix))
-  } else if (model_type %in% c("LCDM", "GDINA")) {
+  } else if (meas_model_type %in% c("LCDM", "GDINA")) {
     qmatrix %>%
       modelr::model_matrix(stats::as.formula(paste0("~ .^",
                                                     max(ncol(.), 2)))) %>%
       dplyr::mutate(total_params = rowSums(.)) %>%
       dplyr::pull("total_params")
-  } else if (model_type %in% c("ACDM", "LLM", "RRUM")) {
+  } else if (meas_model_type %in% c("ACDM", "LLM", "RRUM")) {
     qmatrix %>%
       dplyr::mutate(total_params = rowSums(.) + 1) %>%
       dplyr::pull("total_params")
   }
 
-  model_type <- ifelse(model_type == "GDINA", "LCDM", model_type)
+  meas_model_type <- ifelse(meas_model_type == "GDINA", "LCDM", meas_model_type)
 
   num_items <- nrow(qmatrix)
   num_attr <- ncol(qmatrix)
 
   n <- nrow(data)
-  l <- 2 ^ num_attr
+  if (hierarchical_model) {
+
+  } else {
+    l <- 2 ^ num_attr
+  }
 
   emp_marginal_probabilities <- calc_emp_marginal_prob(data, n)
 
@@ -88,7 +95,7 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
                                                          base_rates)
 
   cr <- calc_c_r(num_items, num_item_params, pi_matrix, base_rates, l, num_attr,
-                 qmatrix, model_type, link)
+                 qmatrix, meas_model_type = model_type, link)
 
   m2_stat <- n * ((t(emp_marginal_probabilities -
                        model_marginal_probabilities) %*% cr) %*%
@@ -97,7 +104,7 @@ calc_m2 <- function(data, struc_params, pi_matrix, qmatrix, ci = 0.9,
   se <- sqrt(diag(Mord(c(1:num_items), pi_matrix, base_rates)$bi) -
                c(Mord(c(1:num_items), pi_matrix, base_rates)$uni)^2)
 
-  design_matrix <- calc_design_matrix(num_item_params, qmatrix, model_type)
+  design_matrix <- calc_design_matrix(num_item_params, qmatrix, meas_model_type)
 
   skills_missing <- skills(base_rates, l, qmatrix)
 
