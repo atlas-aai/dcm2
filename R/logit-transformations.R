@@ -4,7 +4,7 @@
 #' common transformation for psychometric models that is used to put
 #' probabilities on a continuous scale.
 #'
-#' @param x A number to be transformed
+#' @param x A number to be transformed.
 #'
 #' @return A transformed double
 #'
