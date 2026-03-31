@@ -7,7 +7,7 @@
 as_binary(x)
 }
 \arguments{
-\item{x}{The number of attributes}
+\item{x}{The number of attributes.}
 }
 \value{
 A \code{2 ^ x} by \code{x} matrix

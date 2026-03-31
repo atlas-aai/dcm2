@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Jeffrey Hoover \email{jeffrey.c.hoover@gmail.com} (\href{https://orcid.org/0000-0002-0276-0308}{ORCID}) [copyright holder]
+\strong{Maintainer}: Jeffrey Hoover \email{jeffrey.c.hoover@gmail.com} (\href{https://orcid.org/0000-0002-0276-0308}{ORCID})
 
 Authors:
 \itemize{
@@ -27,6 +27,7 @@ Authors:
 Other contributors:
 \itemize{
   \item Wenchao Ma \email{wenchao.ma@ua.edu} (Author of Mord.cpp) [contributor]
+  \item University of Kansas [copyright holder]
 }
 
 }

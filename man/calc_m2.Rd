@@ -7,31 +7,39 @@
 calc_m2(
   data,
   struc_params,
+  num_item_params,
   pi_matrix,
   qmatrix,
   ci = 0.9,
   link = "logit",
-  model_type = c("LCDM", "GDINA", "ACDM", "LLM", "RRUM", "DINO", "DINA", "BUGDINO")
+  model_type = c("LCDM", "GDINA", "ACDM", "LLM", "RRUM", "DINO", "DINA", "BUGDINO",
+    "CRUM", "NCRUM", "NIDA", "NIDO"),
+  allowed_profiles
 )
 }
 \arguments{
 \item{data}{A data frame containing the raw data, where there is one row per
-respondent and one column per item}
+respondent and one column per item.}
 
 \item{struc_params}{A vector containing the structural parameters of the
-estimated model}
+estimated model.}
+
+\item{num_item_params}{A vector containing the number of estimated item
+parameters for each of the items.}
 
 \item{pi_matrix}{An item-by-class matrix containing the probability of a
-correct response by members of each latent class}
+correct response by members of each latent class.}
 
-\item{qmatrix}{A data frame containing the Q-matrix}
+\item{qmatrix}{A data frame containing the Q-matrix.}
 
-\item{ci}{The confidence interval for the RMSEA, computed from the M2}
+\item{ci}{The confidence interval for the RMSEA, computed from the M2.}
 
 \item{link}{A character containing the link function.}
 
-\item{model_type}{A character containing the model type (e.g., \code{LCDM})
-that was estimated.}
+\item{model_type}{A character containing the type of measurement model
+(e.g., \code{LCDM}) that was estimated.}
+
+\item{allowed_profiles}{A tibble containing all of the allowable profiles.}
 }
 \value{
 A data frame containing:
@@ -49,24 +57,26 @@ A data frame containing:
 Calculate the M2
 }
 \examples{
-possible_prof <- dcm2::as_binary(ncol(sample_data$q_matrix))
+allowed_profiles <- dcmstan::create_profiles(ncol(sample_data$q_matrix))
+names(allowed_profiles) <- names(sample_data$q_matrix)
 
-fit_dat <- sample_data$data \%>\%
+fit_dat <- sample_data$data |>
              tidyr::pivot_wider(names_from = "item_id",
-                                values_from = "score") \%>\%
-             dplyr::select(-"resp_id") \%>\%
-             as.matrix() \%>\%
+                                values_from = "score") |>
+             dplyr::select(-"resp_id") |>
+             as.matrix() |>
              unname()
 gdina_mod <- GDINA::GDINA(dat = fit_dat,
                           Q = data.frame(sample_data$q_matrix),
                           model = "logitGDINA",
                           control = list(conv.type = "neg2LL"))
 struc_params <- gdina_mod$struc.parm
-pi_matrix <- gdina_mod$LC.prob \%>\%
-               as.matrix() \%>\%
+pi_matrix <- gdina_mod$LC.prob |>
+               as.matrix() |>
                unname()
-calc_m2(data = fit_dat, struc_params, pi_matrix,
+num_item_params <- c(2, 2, 2, 2, 4, 2, 4, 2)
+calc_m2(data = fit_dat, struc_params, num_item_params, pi_matrix,
         qmatrix = data.frame(sample_data$q_matrix), ci = 0.9, link = "logit",
-        model_type = "LCDM")
+        model_type = "LCDM", allowed_profiles = allowed_profiles)
 
 }
