@@ -3,9 +3,9 @@
 
 #' Calculate the Mord statistic
 #'
-#' @param item_no The item number.
-#' @param LCprob Item parameters.
-#' @param prior Class membership probabilities.
+#' @param item_no The item number
+#' @param LCprob Item parameters
+#' @param prior Class membership probabilities
 #' @author Wenchao Ma, https://github.com/Wenchao-Ma/GDINA
 #' @noRd
 #'
