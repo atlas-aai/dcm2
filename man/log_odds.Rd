@@ -11,7 +11,7 @@ logit(x)
 inv_logit(x)
 }
 \arguments{
-\item{x}{A number to be transformed}
+\item{x}{A number to be transformed.}
 }
 \value{
 A transformed double

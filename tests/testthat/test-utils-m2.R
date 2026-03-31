@@ -101,7 +101,7 @@ test_that("test skills", {
                                     prof3 = c("10", "00", "10", "00", "10",
                                               "00"),
                                     prof4 = c("00", "00", "00", "00", "00",
-                                              "00")) %>%
+                                              "00")) |>
     as.matrix()
 
   expected_output <- unname(expected_output)
@@ -118,10 +118,12 @@ test_that("test calc_patt", {
   skills_missing <- tibble::tibble(`00` = c("10", "01", "10", "01"),
                                    `10` = c("00", "01", "00", "01"),
                                    `01` = c("10", "00", "10", "00"),
-                                   `11` = c("00", "00", "00", "00")) %>%
+                                   `11` = c("00", "00", "00", "00")) |>
     as.matrix()
 
-  output <- calc_patt(q_matrix, l, skills_missing)
+  num_item_params <- rep(2, 4)
+
+  output <- calc_patt(q_matrix, l, skills_missing, num_item_params)
 
   expect_equal(typeof(output), "integer")
   expect_equal(ncol(output), l)
@@ -130,8 +132,8 @@ test_that("test calc_patt", {
                tibble::tibble(`00` = rep(1, nrow(q_matrix)),
                               `10` = c(2, 1, 2, 1),
                               `01` = c(1, 2, 1, 2),
-                              `11` = rep(2, nrow(q_matrix))) %>%
-                 as.matrix() %>%
+                              `11` = rep(2, nrow(q_matrix))) |>
+                 as.matrix() |>
                  unname())
 })
 
@@ -170,7 +172,12 @@ test_that("test calc_design_matrix - LCDM", {
   num_item_params <- c(2, 2, 2, 4)
   model_type <- "LCDM"
 
-  output <- calc_design_matrix(num_item_params, qmatrix, model_type)
+  hierarchy <- FALSE
+  allowed_profiles <- tibble::tibble(att_1 = c(0, 1, 0, 1),
+                                     att_2 = c(0, 0, 1, 1))
+
+  output <- calc_design_matrix(num_item_params, qmatrix, model_type, hierarchy,
+                               allowed_profiles)
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
@@ -193,7 +200,12 @@ test_that("test calc_design_matrix - DINO", {
   num_item_params <- c(2, 2, 2, 2)
   model_type <- "DINO"
 
-  output <- calc_design_matrix(num_item_params, qmatrix, model_type)
+  hierarchy <- FALSE
+  allowed_profiles <- tibble::tibble(att_1 = c(0, 1, 0, 1),
+                                     att_2 = c(0, 0, 1, 1))
+
+  output <- calc_design_matrix(num_item_params, qmatrix, model_type, hierarchy,
+                               allowed_profiles)
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
@@ -214,7 +226,12 @@ test_that("test calc_design_matrix - DINA", {
   num_item_params <- c(2, 2, 2, 2)
   model_type <- "DINA"
 
-  output <- calc_design_matrix(num_item_params, qmatrix, model_type)
+  hierarchy <- FALSE
+  allowed_profiles <- tibble::tibble(att_1 = c(0, 1, 0, 1),
+                                     att_2 = c(0, 0, 1, 1))
+
+  output <- calc_design_matrix(num_item_params, qmatrix, model_type, hierarchy,
+                               allowed_profiles)
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
@@ -235,7 +252,12 @@ test_that("test calc_design_matrix - ACDM", {
   num_item_params <- c(2, 2, 2, 3)
   model_type <- "ACDM"
 
-  output <- calc_design_matrix(num_item_params, qmatrix, model_type)
+  hierarchy <- FALSE
+  allowed_profiles <- tibble::tibble(att_1 = c(0, 1, 0, 1),
+                                     att_2 = c(0, 0, 1, 1))
+
+  output <- calc_design_matrix(num_item_params, qmatrix, model_type, hierarchy,
+                               allowed_profiles)
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
@@ -257,7 +279,12 @@ test_that("test calc_design_matrix - BUGDINO", {
   num_item_params <- c(2, 2, 2, 2)
   model_type <- "BUGDINO"
 
-  output <- calc_design_matrix(num_item_params, qmatrix, model_type)
+  hierarchy <- FALSE
+  allowed_profiles <- tibble::tibble(att_1 = c(0, 1, 0, 1),
+                                     att_2 = c(0, 0, 1, 1))
+
+  output <- calc_design_matrix(num_item_params, qmatrix, model_type, hierarchy,
+                               allowed_profiles)
 
   expect_equal(length(output), nrow(qmatrix))
   expect_equal(output[[1]],
@@ -422,12 +449,13 @@ test_that("test calc_jacobian_matrix - logit link", {
 
   skills_missing <- skills(base_rates, 2, qmatrix)
 
-  patt <- calc_patt(qmatrix, 2, skills_missing)
+  patt <- calc_patt(qmatrix, 2, skills_missing, num_item_params)
 
   link <- "logit"
 
   output <- calc_jacobian_matrix(2, num_item_params, pi_matrix,
-                                 design_matrix, patt, base_rates, 2, 1, link)
+                                 design_matrix, patt, base_rates, 2, 1, link,
+                                 model_type = "LCDM")
 
   expect_equal(output,
                matrix(c(.185, .08, 0, 0, .075,
@@ -452,12 +480,13 @@ test_that("test calc_jacobian_matrix - log link", {
 
   skills_missing <- skills(base_rates, 2, qmatrix)
 
-  patt <- calc_patt(qmatrix, 2, skills_missing)
+  patt <- calc_patt(qmatrix, 2, skills_missing, num_item_params)
 
   link <- "log"
 
   output <- calc_jacobian_matrix(2, num_item_params, pi_matrix,
-                                 design_matrix, patt, base_rates, 2, 1, link)
+                                 design_matrix, patt, base_rates, 2, 1, link,
+                                 model_type = "LCDM")
 
   expect_equal(output,
                matrix(c(.55, .4, 0, 0, .075,
@@ -482,12 +511,13 @@ test_that("test calc_jacobian_matrix - identity link", {
 
   skills_missing <- skills(base_rates, 2, qmatrix)
 
-  patt <- calc_patt(qmatrix, 2, skills_missing)
+  patt <- calc_patt(qmatrix, 2, skills_missing, num_item_params)
 
   link <- "identity"
 
   output <- calc_jacobian_matrix(2, num_item_params, pi_matrix,
-                                 design_matrix, patt, base_rates, 2, 1, link)
+                                 design_matrix, patt, base_rates, 2, 1, link,
+                                 model_type = "LCDM")
 
   expect_equal(output,
                matrix(c(1, .5, 0, 0, .075,
@@ -513,8 +543,12 @@ test_that("test calc_c_r", {
   model_type <- "LCDM"
   link <- "logit"
 
+  allowed_profiles <- tibble::tibble(att_1 = c(0, 1, 0, 1),
+                                     att_2 = c(0, 0, 1, 1))
+
   output <- calc_c_r(num_items, num_item_params, pi_matrix, base_rates, l,
-                     num_attr, qmatrix, model_type, link)
+                     num_attr, qmatrix, model_type, link, hierarchy = FALSE,
+                     allowed_profiles)
 
   expect_equal(typeof(output), "double")
   expect_equal(class(output), c("matrix", "array"))

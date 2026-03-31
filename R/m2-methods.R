@@ -22,13 +22,14 @@
 #' @export
 #'
 #' @examples
-#' possible_prof <- dcm2::as_binary(ncol(sample_data$q_matrix))
+#' allowed_profiles <- dcmstan::create_profiles(ncol(sample_data$q_matrix))
+#' names(allowed_profiles) <- names(sample_data$q_matrix)
 #'
-#' fit_dat <- sample_data$data %>%
+#' fit_dat <- sample_data$data |>
 #'              tidyr::pivot_wider(names_from = "item_id",
-#'                                 values_from = "score") %>%
-#'              dplyr::select(-"resp_id") %>%
-#'              as.matrix() %>%
+#'                                 values_from = "score") |>
+#'              dplyr::select(-"resp_id") |>
+#'              as.matrix() |>
 #'              unname()
 #' gdina_mod <- GDINA::GDINA(dat = fit_dat,
 #'                           Q = data.frame(sample_data$q_matrix),
@@ -46,9 +47,26 @@ fit_m2.GDINA <- function(model, ci = 0.9, ...) {
 
   link_func <- unique(c("identity", "logit", "log")[model$options$linkfunc])
 
-  m2 <- calc_m2(data = model$options$dat, struc_params = model$struc.parm,
-                pi_matrix = model$LC.prob, qmatrix = model$options$Q,
-                ci = ci, link = link_func, model_type = mod_type)
+  num_item_params <- model$catprob.matrix |>
+    as.data.frame() |>
+    tibble::as_tibble() |>
+    tibble::rowid_to_column("item_id") |>
+    tidyr::pivot_longer(cols = -c("item_id"), names_to = "class",
+                        values_to = "prob") |>
+    dplyr::filter(!is.na(.data$prob)) |>
+    dplyr::distinct(.data$item_id, .data$prob) |>
+    dplyr::count(.data$item_id) |>
+    dplyr::pull(.data$n)
 
-  return(m2)
+  allowed_profiles <- model$attributepattern |>
+    as.data.frame() |>
+    tibble::as_tibble()
+
+  names(allowed_profiles) <- names(model$options$Q)
+
+  calc_m2(data = model$options$dat, struc_params = model$struc.parm,
+          num_item_params = num_item_params,
+          pi_matrix = model$LC.prob, qmatrix = model$options$Q,
+          ci = ci, link = link_func, model_type = mod_type,
+          allowed_profiles = allowed_profiles)
 }

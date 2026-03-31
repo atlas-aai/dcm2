@@ -3,8 +3,8 @@
 #' Calculates the empirical first- and second-order item marginal probabilities.
 #'
 #' @param data A data frame containing the raw data, where there is one row per
-#' respondent and one column per item
-#' @param n An integer specifying the number of respondents in `data`
+#' respondent and one column per item.
+#' @param n An integer specifying the number of respondents in `data`.
 #'
 #' @return `p` A vector containing the first- and second-order empirical item
 #' marginal probabilities.
@@ -21,8 +21,7 @@ calc_emp_marginal_prob <- function(data, n) {
   p2 <- crossprod(x, x) / n
 
   # create a vector with the first- and second-order marginal probabilities
-  p <- c(as.matrix(p1), p2[lower.tri(p2)])
-  return(p)
+  c(as.matrix(p1), p2[lower.tri(p2)])
 }
 
 #' Calculate all possible attribute mastery profiles
@@ -37,15 +36,13 @@ att_profile <- function(natt) {
   att_names <- glue::glue("att_{1:natt}") # nolint
 
   # all possible combinations of attribute mastery
-  profile <- as_binary(natt) %>%
+  as_binary(natt) |>
     # specify attribute names
-    tibble::as_tibble(.name_repair = ~att_names) %>%
+    tibble::as_tibble(.name_repair = ~att_names) |>
     # create attribute mastery profile
-    tidyr::unite(., col = "profile", sep = "", remove = FALSE, na.rm = TRUE) %>%
+    tidyr::unite(col = "profile", sep = "", remove = FALSE, na.rm = TRUE) |>
     # pull attribute mastery profile
-    dplyr::pull(profile)
-
-  return(profile)
+    dplyr::pull(.data$profile)
 }
 
 #' Calculate model marginal probabilities model fit
@@ -53,11 +50,11 @@ att_profile <- function(natt) {
 #' Calculates the model-based first- and second-order item marginal
 #' probabilities.
 #'
-#' @param num_items An integer specifying the number of items
+#' @param num_items An integer specifying the number of items.
 #' @param pi_matrix An item-by-class matrix containing the probability of a
-#' correct response by members of each latent class
+#' correct response by members of each latent class.
 #' @param base_rates A single row matrix containing the structural parameters
-#' indicating the model estimated base rates of mastery
+#' indicating the model estimated base rates of mastery.
 #'
 #' @return `e` A vector containing the first- and second-order model-based item
 #' marginal probabilities.
@@ -74,25 +71,26 @@ calc_mod_marginal_prob <- function(num_items, pi_matrix, base_rates) {
   # calculate the second-order marginal probabilities
   bi <- calc_bivariate_prob(num_items, bi, pi_matrix, base_rates)
   # create a vector with the first- and second-order marginal probabilities
-  e <- c(uni, bi[lower.tri(bi)])
-
-  return(e)
+  c(uni, bi[lower.tri(bi)])
 }
 
 #' Calculate the C_r matrix
 #'
-#' @param num_items An integer specifying the number of items
+#' @param num_items An integer specifying the number of items.
 #' @param num_item_params A vector containing the number of estimated item
-#' parameters for each of the items
+#' parameters for each of the items.
 #' @param pi_matrix An item-by-class matrix containing the probability of a
-#' correct response by members of each latent class
+#' correct response by members of each latent class.
 #' @param base_rates A single row matrix containing the structural parameters
-#' indicating the model estimated base rates of mastery
-#' @param l An integer containing the number of latent classes
-#' @param num_attr An integer containing the number of assessed attributes
-#' @param qmatrix A data frame containing the Q-matrix
-#' @param model_type A string containing the type of model (e.g., 'LCDM')
-#' @param link A string containing the type of link function (e.g., 'logit')
+#' indicating the model estimated base rates of mastery.
+#' @param l An integer containing the number of latent classes.
+#' @param num_attr An integer containing the number of assessed attributes.
+#' @param qmatrix A data frame containing the Q-matrix.
+#' @param model_type A string containing the type of model (e.g., 'LCDM').
+#' @param link A string containing the type of link function (e.g., 'logit').
+#' @param hierarchy A logical variable indicating whether an attribute hierarchy
+#'   has been specified.
+#' @param allowed_profiles A tibble containing all of the allowable profiles.
 #'
 #' @return `cr` An R x (R - F) orthogonal complement to \delta_r (Browne, 1984).
 #'
@@ -103,16 +101,18 @@ calc_mod_marginal_prob <- function(num_items, pi_matrix, base_rates) {
 #'
 #' @noRd
 calc_c_r <- function(num_items, num_item_params, pi_matrix, base_rates, l,
-                     num_attr, qmatrix, model_type, link) {
-  design_matrix <- calc_design_matrix(num_item_params, qmatrix, model_type)
+                     num_attr, qmatrix, model_type, link, hierarchy,
+                     allowed_profiles) {
+  design_matrix <- calc_design_matrix(num_item_params, qmatrix, model_type,
+                                      hierarchy, allowed_profiles)
 
   skills_missing <- skills(base_rates, l, qmatrix)
 
-  patt <- calc_patt(qmatrix, l, skills_missing)
+  patt <- calc_patt(qmatrix, l, skills_missing, num_item_params)
 
   jacobian <- calc_jacobian_matrix(num_items, num_item_params, pi_matrix,
                                    design_matrix, patt, base_rates, l, num_attr,
-                                   link)
+                                   link, model_type)
 
   jacobian <- qr.Q(qr(jacobian),
                    complete = TRUE)[, (ncol(jacobian) +
@@ -122,61 +122,82 @@ calc_c_r <- function(num_items, num_item_params, pi_matrix, base_rates, l,
 
   covariance_matrix <- calc_covariance_matrix(num_items, pi_matrix, base_rates)
 
-  cr <- jacobian %*% solve(t(jacobian) %*% covariance_matrix %*% jacobian) %*%
+  jacobian %*% solve(t(jacobian) %*% covariance_matrix %*% jacobian) %*%
     t(jacobian)
-
-  return(cr)
 }
 
 #' Calculate the Jacobian matrix
 #'
-#' @param num_items An integer specifying the number of items
+#' @param num_items An integer specifying the number of items.
 #' @param num_item_params A vector containing the number of estimated item
-#' parameters for each of the items
+#' parameters for each of the items.
 #' @param pi_matrix An item-by-class matrix containing the probability of a
-#' correct response by members of each latent class
-#' @param design_matrix A matrix containing the design matrix
-#' @param patt A matrix containing the pattern matrix
-#' @param base_rates A single row matrix containing the structural parameters
-#' indicating the model estimated base rates of mastery
-#' @param l An integer containing the number of latent classes
-#' @param num_attr An integer containing the number of assessed attributes
-#' @param link A string containing the type of link function (e.g., 'logit')
+#' correct response by members of each latent class.
+#' @param design_matrix A matrix containing the design matrix.
+#' @param patt A matrix containing the pattern matrix.
+#' @param base_rates A single row matrix containing the structural parameters.
+#' indicating the model estimated base rates of mastery.
+#' @param l An integer containing the number of latent classes.
+#' @param num_attr An integer containing the number of assessed attributes.
+#' @param link A string containing the type of link function (e.g., 'logit').
+#' @param model_type A character containing the type of measurement model
+#' (e.g., `LCDM`) that was estimated.
 #'
 #' @return `jacobian` A matrix containing the Jacobian matrix.
 #'
 #' @noRd
 calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
                                  design_matrix, patt, base_rates, l, num_attr,
-                                 link) {
-  jacobian11 <- matrix(0, nrow = num_items, ncol = sum(num_item_params))
-  cumulative_parameters <- cumsum(num_item_params)
+                                 link, model_type) {
+  if (model_type %in% c("LLM", "ACDM", "RRUM", "CRUM", "NCRUM")) {
+    jacobian11 <- matrix(0, nrow = num_items,
+                         ncol = sum(num_item_params))
+    cumulative_parameters <- cumsum(num_item_params)
+    latent_classes_per_item <- num_item_params
+  } else {
+    latent_classes_per_item <- pi_matrix |>
+      as.data.frame() |>
+      tibble::as_tibble() |>
+      tibble::rowid_to_column("item_id") |>
+      tidyr::pivot_longer(cols = -c("item_id"), names_to = "class",
+                          values_to = "prob") |>
+      dplyr::distinct(.data$item_id, .data$prob) |>
+      dplyr::count(.data$item_id) |>
+      dplyr::pull(.data$n)
 
-  for (ii in 1:num_items) {
+    jacobian11 <- matrix(0, nrow = num_items,
+                         ncol = sum(latent_classes_per_item))
+    cumulative_parameters <- cumsum(latent_classes_per_item)
+  }
+
+  for (ii in seq_len(num_items)) {
     # the Jacobian matrix is calculated differently depending on the link
     # function; this describes the calculation for the logit link function
     # which is the most complicated
     #
     # multiply the prob of a correct response times prob of incorrect response
-    # times design matrix times base rate this estimates the covariance of the
-    # first-order marginal probabilities by using the design matrix, this
+    # times design matrix times base rate; this estimates the covariance of the
+    # first-order marginal probabilities by using the design matrix, which
     # controls for parameters not estimated for certain latent classes
     if (link == "logit") {
       jacobian11[ii,
                  (cumulative_parameters[ii] -
-                    num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+                    latent_classes_per_item[ii] +
+                    1):cumulative_parameters[ii]] <-
         colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
                   design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
     } else if (link == "log") {
       jacobian11[ii,
                  (cumulative_parameters[ii] -
-                    num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+                    latent_classes_per_item[ii] +
+                    1):cumulative_parameters[ii]] <-
         colSums(pi_matrix[ii, ] *
                   design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
     } else if (link == "identity") {
       jacobian11[ii,
                  (cumulative_parameters[ii] -
-                    num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+                    latent_classes_per_item[ii] +
+                    1):cumulative_parameters[ii]] <-
         colSums(design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates))
     }
 
@@ -193,7 +214,7 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
   }
 
   jacobian21 <- matrix(0, nrow = choose(num_items, 2),
-                       ncol = sum(num_item_params))
+                       ncol = sum(latent_classes_per_item))
 
   row_iterator <- 1
 
@@ -212,7 +233,8 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
         if (link == "logit") {
           jacobian21[row_iterator,
                      (cumulative_parameters[jj] -
-                        num_item_params[jj] + 1):cumulative_parameters[jj]] <-
+                        latent_classes_per_item[jj] +
+                        1):cumulative_parameters[jj]] <-
             colSums(pi_matrix[jj, ] * (1 - pi_matrix[jj, ]) *
                       design_matrix[[jj]][patt[jj, ], ] *
                       as.vector(base_rates) *
@@ -220,7 +242,8 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
 
           jacobian21[row_iterator,
                      (cumulative_parameters[ii] -
-                        num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+                        latent_classes_per_item[ii] +
+                        1):cumulative_parameters[ii]] <-
             colSums(pi_matrix[ii, ] * (1 - pi_matrix[ii, ]) *
                       design_matrix[[ii]][patt[ii, ], ] *
                       as.vector(base_rates) *
@@ -228,7 +251,8 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
         } else if (link == "log") {
           jacobian21[row_iterator,
                      (cumulative_parameters[jj] -
-                        num_item_params[jj] + 1):cumulative_parameters[jj]] <-
+                        latent_classes_per_item[jj] +
+                        1):cumulative_parameters[jj]] <-
             colSums(pi_matrix[jj, ] *
                       design_matrix[[jj]][patt[jj, ], ] *
                       as.vector(base_rates) *
@@ -236,7 +260,8 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
 
           jacobian21[row_iterator,
                      (cumulative_parameters[ii] -
-                        num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+                        latent_classes_per_item[ii] +
+                        1):cumulative_parameters[ii]] <-
             colSums(pi_matrix[ii, ] *
                       design_matrix[[ii]][patt[ii, ], ] *
                       as.vector(base_rates) *
@@ -244,13 +269,15 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
         } else if (link == "identity") {
           jacobian21[row_iterator,
                      (cumulative_parameters[jj] -
-                        num_item_params[jj] + 1):cumulative_parameters[jj]] <-
+                        latent_classes_per_item[jj] +
+                        1):cumulative_parameters[jj]] <-
             colSums(design_matrix[[jj]][patt[jj, ], ] * as.vector(base_rates) *
                       pi_matrix[ii, ])
 
           jacobian21[row_iterator,
                      (cumulative_parameters[ii] -
-                        num_item_params[ii] + 1):cumulative_parameters[ii]] <-
+                        latent_classes_per_item[ii] +
+                        1):cumulative_parameters[ii]] <-
             colSums(design_matrix[[ii]][patt[ii, ], ] * as.vector(base_rates) *
                       pi_matrix[jj, ])
         }
@@ -295,7 +322,7 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
                       rbind(jacobian12, jacobian22))
   }
 
-  return(jacobian)
+  return(jacobian) # nolint
 }
 
 #' Calculate the asymptotic covariance matrix
@@ -304,19 +331,18 @@ calc_jacobian_matrix <- function(num_items, num_item_params, pi_matrix,
 #'
 #' @param num_items An integer of the number of items.
 #' @param pi_matrix An item-by-class matrix containing the probability of a
-#' correct response by members of each latent class
+#' correct response by members of each latent class.
 #' @param base_rates A single row matrix containing the structural parameters
-#' indicating the model estimated base rates of mastery
+#' indicating the model estimated base rates of mastery.
 #'
 #' @noRd
 calc_covariance_matrix <- function(num_items, pi_matrix, base_rates) {
   partitioned_cov_mat <- Mord(c(1:num_items), pi_matrix, base_rates)
-  cov_mat <- cbind(rbind(partitioned_cov_mat$Xi11,
-                         partitioned_cov_mat$Xi21),
-                   rbind(t(partitioned_cov_mat$Xi21),
-                         partitioned_cov_mat$Xi22))
 
-  return(cov_mat)
+  cbind(rbind(partitioned_cov_mat$Xi11,
+              partitioned_cov_mat$Xi21),
+        rbind(t(partitioned_cov_mat$Xi21),
+              partitioned_cov_mat$Xi22))
 }
 
 #' Calculate the Design Matrix
@@ -327,9 +353,12 @@ calc_covariance_matrix <- function(num_items, pi_matrix, base_rates) {
 #' are estimated for each latent class.
 #'
 #' @param num_item_params A vector containing the number of estimated item
-#' parameters for each of the items
-#' @param qmatrix A data frame containing the Q-matrix
-#' @param model_type A string containing the type of model (e.g., 'LCDM')
+#'   parameters for each of the items.
+#' @param qmatrix A data frame containing the Q-matrix.
+#' @param model_type A string containing the type of model (e.g., 'LCDM').
+#' @param hierarchy A logical value indicating whether an attribute hierarchy
+#'   has been specified.
+#' @param allowed_profiles A tibble containing all of the allowable profiles.
 #'
 #' @return `design_matrix` The design matrix.
 #'
@@ -337,24 +366,71 @@ calc_covariance_matrix <- function(num_items, pi_matrix, base_rates) {
 #'    *Psychometrika, 76*, 179-199. doi:10.1007/s11336-011-9207-7
 #'
 #' @noRd
-calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
+calc_design_matrix <- function(num_item_params, qmatrix, model_type,
+                               hierarchy, allowed_profiles) {
   design_matrix <- list()
 
   for (ii in seq_len(nrow(qmatrix))) {
     if (sum(qmatrix[ii, ]) > 1) {
+      num_columns <- ncol(qmatrix)
       design_matrix[[ii]] <- possible_parameters(sum(qmatrix[ii, ]),
-                                                 model_type) %>%
-        tibble::as_tibble(.name_repair = "unique_quiet") %>%
+                                                 model_type) |>
+        tibble::as_tibble(.name_repair = "unique_quiet")
+
+      names(design_matrix[[ii]]) <- qmatrix[ii, ] |>
+        tidyr::pivot_longer(cols = dplyr::everything(),
+                            names_to = "att",
+                            values_to = "meas") |>
+        dplyr::filter(.data$meas == 1) |>
+        dplyr::pull(.data$att)
+
+      design_matrix[[ii]] <- design_matrix[[ii]] |>
+        dplyr::semi_join(allowed_profiles, by = names(design_matrix[[ii]]))
+
+      design_matrix[[ii]] <- design_matrix[[ii]] |>
         only_if(model_type == "LCDM")(modelr::model_matrix)(
-          ., stats::as.formula(paste0("~ .^", ncol(.)))
-        ) %>%
-        only_if(model_type %in% c("ACDM", "LLM", "RRUM"))(dplyr::mutate)(
-          int = 1
-        ) %>%
-        only_if(model_type %in% c("ACDM", "LLM", "RRUM"))(dplyr::select)(
-          "int", dplyr::everything()
-        ) %>%
-        as.matrix() %>%
+          stats::as.formula(paste0("~ .^", num_columns))
+        )
+
+      design_matrix[[ii]] <- design_matrix[[ii]] |>
+        tibble::rowid_to_column("row_num") |>
+        tidyr::pivot_longer(cols = -c("row_num"), # ::everything(),
+                            names_to = "prof",
+                            values_to = "meas") |>
+        tidyr::pivot_wider(names_from = "row_num", values_from = "meas") |>
+        tibble::rowid_to_column("row_num") |>
+        dplyr::group_by(dplyr::across(c(-"row_num", -"prof"))) |>
+        dplyr::filter(.data$row_num == max(.data$row_num)) |>
+        dplyr::ungroup() |>
+        dplyr::select(-"row_num") |>
+        tidyr::pivot_longer(cols = -c("prof"), values_to = "meas",
+                            names_to = "row_num") |>
+        tidyr::pivot_wider(names_from = "prof", values_from = "meas") |>
+        dplyr::select(-"row_num")
+
+      if (model_type %in% c("NIDA", "NIDO")) {
+        intercept_params <- design_matrix[[ii]]
+        names(intercept_params) <- stringr::str_c("int_",
+                                                  names(design_matrix[[ii]]))
+
+        design_matrix[[ii]] <- intercept_params |>
+          tibble::rowid_to_column("class_num") |>
+          tidyr::pivot_longer(cols = -c("class_num"), names_to = "param",
+                              values_to = "meas") |>
+          dplyr::mutate(meas = 1) |>
+          tidyr::pivot_wider(names_from = "param", values_from = "meas") |>
+          dplyr::select(-"class_num") |>
+          dplyr::bind_cols(design_matrix[[ii]])
+      }
+
+      design_matrix[[ii]] <- design_matrix[[ii]] |>
+        only_if(
+          model_type %in% c("ACDM", "LLM", "RRUM", "CRUM", "NCRUM")
+        )(dplyr::mutate)(int = 1) |>
+        only_if(
+          model_type %in% c("ACDM", "LLM", "RRUM", "CRUM", "NCRUM")
+        )(dplyr::select)("int", dplyr::everything()) |>
+        as.matrix() |>
         unname()
     } else {
       design_matrix[[ii]] <- matrix(nrow = 2^sum(qmatrix[ii, ]),
@@ -362,17 +438,17 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
 
       design_matrix[[ii]][, 1] <- 1
       design_matrix[[ii]][, 2] <- possible_parameters(sum(qmatrix[ii, ]),
-                                                      model_type) %>%
-        tibble::as_tibble(.name_repair = "unique_quiet") %>%
+                                                      model_type) |>
+        tibble::as_tibble(.name_repair = "unique_quiet") |>
         only_if(model_type %in% c("DINO", "DINA", "BUGDINO"))(dplyr::select)(
           -"...1"
-        ) %>%
-        as.matrix() %>%
+        ) |>
+        as.matrix() |>
         unname()
     }
   }
 
-  return(design_matrix)
+  return(design_matrix) # nolint
 }
 
 #' Create a matrix containing all possible parameter combinations
@@ -381,7 +457,7 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
 #' are estimated for each latent class.
 #'
 #' @param natt An integer containing the number of assessed attributes.
-#' @param model_type A string containing the type of model (e.g., 'LCDM')
+#' @param model_type A string containing the type of model (e.g., 'LCDM').
 #'
 #' @return `profiles` A class-by-parameter matrix.
 #'
@@ -389,16 +465,17 @@ calc_design_matrix <- function(num_item_params, qmatrix, model_type) {
 possible_parameters <- function(natt, model_type) {
   attr_names <- as.vector(glue::glue("dplyr::desc(att_{1:natt})"))
 
-  if (model_type %in% c("LCDM", "ACDM", "LLM", "RRUM")) {
-    profiles <- rep(list(c(0L, 1L)), natt) %>%
-      purrr::set_names(glue::glue("att_{seq_len(natt)}")) %>%
-      expand.grid() %>%
-      tibble::as_tibble() %>%
-      dplyr::mutate(total = rowSums(.)) %>%
-      dplyr::select(dplyr::everything(), "total") %>%
-      dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) %>%
-      dplyr::select(-"total") %>%
-      as.matrix() %>%
+  if (model_type %in% c("LCDM", "ACDM", "LLM", "RRUM", "CRUM", "NCRUM",
+                        "NIDO", "NIDA")) {
+    profiles <- rep(list(c(0L, 1L)), natt) |>
+      purrr::set_names(glue::glue("att_{seq_len(natt)}")) |>
+      expand.grid() |>
+      tibble::as_tibble() |>
+      dplyr::mutate(total = rowSums(dplyr::across(dplyr::everything()))) |>
+      dplyr::select(dplyr::everything(), "total") |>
+      dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) |>
+      dplyr::select(-"total") |>
+      as.matrix() |>
       unname()
   } else if (model_type == "DINA") {
     profiles <- matrix(0, nrow = 2^natt, ncol = 2)
@@ -416,7 +493,7 @@ possible_parameters <- function(natt, model_type) {
     profiles[1, 2] <- 1
   }
 
-  return(profiles)
+  return(profiles) # nolint
 }
 
 #' Calculate the pattern matrix
@@ -426,21 +503,23 @@ possible_parameters <- function(natt, model_type) {
 #' which of the assessed attributes have been mastered by the examinees in each
 #' of the latent classes.
 #'
-#' @param qmatrix A data frame containing the Q-matrix
+#' @param qmatrix A data frame containing the Q-matrix.
 #' @param l An integer of the number of possible attribute mastery patterns.
 #' @param skills_missing A matrix of required skills that are missing by each
 #' attribute class.
+#' @param num_item_params A vector containing the number of estimated item
+#' parameters for each of the items.
 #'
 #' @return `patt` The pattern matrix.
 #'
 #' @noRd
-calc_patt <- function(qmatrix, l, skills_missing) {
+calc_patt <- function(qmatrix, l, skills_missing, num_item_params) {
   patt <- matrix(NA, nrow = nrow(qmatrix), ncol = l)
 
   for (mm in seq_len(nrow(qmatrix))) {
-    for (nn in seq(2^rowSums(qmatrix)[mm])) {
+    for (nn in seq(num_item_params[mm])) {
       if (sum(qmatrix[mm, ]) == ncol(qmatrix)) {
-        patt[mm, ] <- seq(2^rowSums(qmatrix)[mm])
+        patt[mm, ] <- seq(l)
       } else {
         val <- min(which(is.na(patt[mm, ])))
         patt[mm, ][skills_missing[mm, ] == skills_missing[mm, val]] <- nn
@@ -448,7 +527,7 @@ calc_patt <- function(qmatrix, l, skills_missing) {
     }
   }
 
-  return(patt)
+  return(patt) # nolint
 }
 
 #' Calculate the skills missing for each item and attribute class
@@ -487,7 +566,7 @@ skills <- function(base_rates, l, qmatrix) {
     }
   }
 
-  return(skills_missing)
+  return(skills_missing) # nolint
 }
 
 #' Calculate all possible item parameters
@@ -505,33 +584,31 @@ item_param_profiles <- function(natt) {
   att_names <- glue::glue("att_{1:natt}") # nolint
 
   if (natt > 1) {
-    ints <- as_binary(natt) %>%
-      tibble::as_tibble(.name_repair = ~att_names) %>%
-      dplyr::mutate(sum = rowSums(.)) %>%
-      dplyr::filter(.data$sum > 1) %>%
-      dplyr::select(-"sum") %>%
-      tibble::rowid_to_column("item") %>%
+    ints <- as_binary(natt) |>
+      tibble::as_tibble(.name_repair = ~att_names) |>
+      dplyr::mutate(sum = rowSums(dplyr::across(dplyr::everything()))) |>
+      dplyr::filter(.data$sum > 1) |>
+      dplyr::select(-"sum") |>
+      tibble::rowid_to_column("item") |>
       tidyr::pivot_longer(cols = -"item", names_to = "att",
-                          values_to = "present") %>%
-      dplyr::mutate(att = stringr::str_remove(.data$att, "att_")) %>%
-      dplyr::filter(.data$present == 1) %>%
-      dplyr::select(-"present") %>%
-      dplyr::group_by(.data$item) %>%
-      dplyr::mutate(param = dplyr::row_number()) %>%
-      dplyr::ungroup() %>%
-      tidyr::pivot_wider(names_from = "param", values_from = "att") %>%
-      dplyr::select(-"item") %>%
-      tidyr::unite(., col = "param", sep = "", remove = FALSE, na.rm = TRUE) %>%
-      dplyr::select("param") %>%
-      dplyr::mutate(param = stringr::str_c("Int", .data$param)) %>%
+                          values_to = "present") |>
+      dplyr::mutate(att = stringr::str_remove(.data$att, "att_")) |>
+      dplyr::filter(.data$present == 1) |>
+      dplyr::select(-"present") |>
+      dplyr::group_by(.data$item) |>
+      dplyr::mutate(param = dplyr::row_number()) |>
+      dplyr::ungroup() |>
+      tidyr::pivot_wider(names_from = "param", values_from = "att") |>
+      dplyr::select(-"item") |>
+      tidyr::unite(col = "param", sep = "", remove = FALSE, na.rm = TRUE) |>
+      dplyr::select("param") |>
+      dplyr::mutate(param = stringr::str_c("Int", .data$param)) |>
       dplyr::pull("param")
   } else {
     ints <- NULL
   }
 
-  params <- c("Intercept", mefs, ints)
-
-  return(params)
+  c("Intercept", mefs, ints)
 }
 
 #' Fisher Partial Alpha
@@ -539,7 +616,8 @@ item_param_profiles <- function(natt) {
 #' Calculates the Fisher Partial Alpha statistic based on the base rates of
 #' mastery.
 #'
-#' mastery and non-mastery.
+#' @param base_rates A vector of with the base reate of membership for each
+#'   latent class.
 #'
 #' @noRd
 fisher_partial_p_alpha_l <- function(base_rates) {
@@ -570,7 +648,7 @@ calc_bivariate_prob <- function(num_items, bi, pi_matrix, base_rates) {
     }
   }
 
-  return(bi)
+  return(bi) # nolint
 }
 
 
@@ -590,14 +668,14 @@ calc_univariate_prob <- function(num_items, uni, pi_matrix, base_rates) {
     uni[ii] <- sum(t(pi_matrix)[, ii] * base_rates)
   }
 
-  return(uni)
+  return(uni) # nolint
 }
 
 #' Calculate RMSEA from M2
 #'
-#' @param x2 The M2 statistic
-#' @param df Degrees of freedom for the M2
-#' @param n Sample size
+#' @param x2 The M2 statistic.
+#' @param df Degrees of freedom for the M2.
+#' @param n Sample size.
 #'
 #' @noRd
 rmsea_calc <- function(x2, df, n) {
@@ -610,13 +688,13 @@ rmsea_calc <- function(x2, df, n) {
 
 #' Calculate RMSEA confidence interval
 #'
-#' @param x2 The M2 statistic
-#' @param df Degrees of freedom for the M2
-#' @param n Sample size
+#' @param x2 The M2 statistic.
+#' @param df Degrees of freedom for the M2.
+#' @param n Sample size.
 #' @param ci_lower Lower end of confidence interval for RMSEA confidence
-#'   interval
+#'   interval.
 #' @param ci_upper Upper end of confidence interval for RMSEA confidence
-#'   interval
+#'   interval.
 #'
 #' @noRd
 rmsea_ci <- function(x2, df, n, ci_lower, ci_upper) {
@@ -644,20 +722,21 @@ rmsea_ci <- function(x2, df, n, ci_lower, ci_upper) {
     rmsea_upper <- 0
   }
 
-  return(c(rmsea_lower, rmsea_upper))
+  return(c(rmsea_lower, rmsea_upper)) # nolint
 }
 
 #' Only If
 #'
 #' Adverb for conditionally skipping steps in a piped workflow.
 #'
-#' @param condition Logical condition to be evaluated
+#' @param condition Logical condition to be evaluated.
+#'
 #' @examples
 #' d <- tibble::as_tibble(mtcars)
-#' d %>%
+#' d |>
 #'   only_if(TRUE)(dplyr::filter)(.data$mpg > 25)
 #'
-#' d %>%
+#' d |>
 #'   only_if(FALSE)(dplyr::filter)(.data$mpg > 25)
 #' @author David Robinson, https://twitter.com/drob/status/785880369073500161
 #' @noRd
@@ -676,7 +755,7 @@ only_if <- function(condition) {
 #' Given a number of attributes, `as_binary` will create all possible binary
 #' mastery profiles.
 #'
-#' @param x The number of attributes
+#' @param x The number of attributes.
 #'
 #' @return A `2 ^ x` by `x` matrix
 #' @export
@@ -687,15 +766,14 @@ only_if <- function(condition) {
 as_binary <- function(x) {
   attr_names <- as.vector(glue::glue("dplyr::desc(att_{1:x})"))
 
-  profiles <- rep(list(c(0L, 1L)), x) %>%
-    purrr::set_names(glue::glue("att_{seq_len(x)}")) %>%
-    expand.grid() %>%
-    tibble::as_tibble() %>%
-    dplyr::mutate(total = rowSums(.)) %>%
-    dplyr::select(dplyr::everything(), "total") %>%
-    dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) %>%
-    dplyr::select(-"total") %>%
-    as.matrix() %>%
+  rep(list(c(0L, 1L)), x) |>
+    purrr::set_names(glue::glue("att_{seq_len(x)}")) |>
+    expand.grid() |>
+    tibble::as_tibble() |>
+    dplyr::mutate(total = rowSums(dplyr::across(dplyr::everything()))) |>
+    dplyr::select(dplyr::everything(), "total") |>
+    dplyr::arrange(.data$total, !!! rlang::parse_exprs(attr_names)) |>
+    dplyr::select(-"total") |>
+    as.matrix() |>
     unname()
-  return(profiles)
 }

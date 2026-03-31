@@ -29,13 +29,14 @@ A data frame containing:
 Estimate the M2 statistic as described by Liu et al. (2016).
 }
 \examples{
-possible_prof <- dcm2::as_binary(ncol(sample_data$q_matrix))
+allowed_profiles <- dcmstan::create_profiles(ncol(sample_data$q_matrix))
+names(allowed_profiles) <- names(sample_data$q_matrix)
 
-fit_dat <- sample_data$data \%>\%
+fit_dat <- sample_data$data |>
              tidyr::pivot_wider(names_from = "item_id",
-                                values_from = "score") \%>\%
-             dplyr::select(-"resp_id") \%>\%
-             as.matrix() \%>\%
+                                values_from = "score") |>
+             dplyr::select(-"resp_id") |>
+             as.matrix() |>
              unname()
 gdina_mod <- GDINA::GDINA(dat = fit_dat,
                           Q = data.frame(sample_data$q_matrix),
