@@ -33,22 +33,29 @@ check_data <- function(data, qmatrix) {
     stop("`data` must be of type integer.",
          call. = FALSE)
   }
+
+  missing_data_present <- any(is.na(data))
+
+  if (missing_data_present) {
+    stop("The M2 statistic is unstable when missing data are present.",
+         call. = FALSE)
+  }
 }
 
-check_struc_params <- function(struc_params, qmatrix) {
+check_struc_params <- function(struc_params, pi_matrix) {
   if (!is.numeric(struc_params)) {
     stop("The class of `struc_params` must be numeric.",
          call. = FALSE)
   }
 
-  if (length(struc_params) != 2^ncol(qmatrix)) {
-    stop(paste("The length of `struc_params` does not match the number of",
-               "latent classes indicated by `qmatrix`."),
+  if (!is.double(struc_params)) {
+    stop("`struc_params` must be of type double",
          call. = FALSE)
   }
 
-  if (!is.double(struc_params)) {
-    stop("`struc_params` must be of type double",
+  if (length(struc_params) != ncol(pi_matrix)) {
+    stop(paste("The length of `struc_params` does not match the number of",
+               "latent classes indicated by `pi_matrix`."),
          call. = FALSE)
   }
 }
@@ -59,20 +66,14 @@ check_pi_matrix <- function(pi_matrix, qmatrix) {
          call. = FALSE)
   }
 
+  if (!is.double(pi_matrix)) {
+    stop("`pi_matrix` must be of type double.",
+         call. = FALSE)
+  }
+
   if (nrow(pi_matrix) != nrow(qmatrix)) {
     stop(paste("The number of items specific by `pi_matrix` and `qmatrix` do",
                "not match."),
-         call. = FALSE)
-  }
-
-  if (ncol(pi_matrix) != 2^ncol(qmatrix)) {
-    stop(paste("The number of latent classes specified in `pi_matrix` and",
-               "`qmatrix` do not match."),
-         call. = FALSE)
-  }
-
-  if (!is.double(pi_matrix)) {
-    stop("`pi_matrix` must be of type double.",
          call. = FALSE)
   }
 }
@@ -89,9 +90,24 @@ check_qmatrix <- function(qmatrix, pi_matrix) {
          call. = FALSE)
   }
 
-  if (ncol(pi_matrix) != 2^ncol(qmatrix)) {
-    stop(paste("The number of latent classes specified in `pi_matrix` and",
-               "`qmatrix` do not match."),
+  q_matrix_values <- qmatrix |>
+    tidyr::pivot_longer(cols = dplyr::everything(),
+                        names_to = "att",
+                        values_to = "measured") |>
+    dplyr::distinct(.data$measured) |>
+    dplyr::pull(.data$measured)
+
+  if (any(!(q_matrix_values %in% c(0, 1)))) {
+    stop(paste("The entries of `qmatrix` must be 0 or 1."),
+         call. = FALSE)
+  }
+}
+
+check_allowed_profiles <- function(allowed_profiles, pi_matrix) {
+  if (nrow(allowed_profiles) != ncol(pi_matrix)) {
+    stop(paste("The number of allowable profiles (rows in `allowed_profiles`)",
+               "should equal the number of latent classes from the estimated",
+               "model (columns in `pi_matrix`)."),
          call. = FALSE)
   }
 }
