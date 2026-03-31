@@ -33,7 +33,7 @@ test_that("test check_data", {
                                             q_matrix))
   expect_match(err$message, "must be a matrix.")
 
-  err <- rlang::catch_cnd(dcm2:::check_data(tibble() %>%
+  err <- rlang::catch_cnd(dcm2:::check_data(tibble::tibble() %>%
                                               as.matrix(),
                                             q_matrix))
   expect_match(err$message, "must include data for at least one student.")
@@ -108,11 +108,6 @@ test_that("test check_pi_matrix", {
   expect_match(err$message,
                "The number of items specific by `pi_matrix` and `qmatrix` do")
 
-  err <- rlang::catch_cnd(dcm2:::check_pi_matrix(pi_matrix[, -4],
-                                                 q_matrix))
-  expect_match(err$message,
-               "The number of latent classes specified in `pi_matrix` and")
-
   err <- rlang::catch_cnd(dcm2:::check_pi_matrix(pi_matrix %>%
                                                    as.character() %>%
                                                    matrix(nrow = 8,
@@ -152,9 +147,11 @@ test_that("test check_qmatrix", {
   expect_match(err$message,
                "The number of items specific by `pi_matrix` and `qmatrix` do")
 
-  err <- rlang::catch_cnd(dcm2:::check_qmatrix(q_matrix[, -2] %>%
-                                                 as.data.frame(),
-                                               pi_matrix))
+  q_matrix$att_1[1] <- -1
+
+  err <- rlang::catch_cnd(dcm2:::check_qmatrix(q_matrix, pi_matrix))
   expect_match(err$message,
-               "The number of latent classes specified in `pi_matrix` and")
+               "The entries of `qmatrix` must be 0 or 1.")
+
+
 })
